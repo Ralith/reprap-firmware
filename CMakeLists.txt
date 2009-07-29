@@ -11,7 +11,7 @@ add_definitions( -mmcu=atmega644p )
 # Clock rate
 add_definitions( -DF_CPU=16000000 )
 # Optimize for size
-add_definitions( -Os )
+add_definitions( -Os -fpack-struct -fshort-enums )
 # Warnings
 add_definitions( -Wall )
 
@@ -20,3 +20,5 @@ add_executable(firmware
   digital.c
   serial.c
   )
+
+add_custom_command(TARGET firmware POST_BUILD COMMAND ./prepare.sh firmware)
