@@ -17,4 +17,6 @@ add_definitions( -Wall )
 
 add_executable(firmware
   main.c
+  digital.c
+  serial.c
   )
