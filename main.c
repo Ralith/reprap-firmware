@@ -22,9 +22,9 @@ int main(void)
 		state = dig_read(19);
 		dig_write(1, state);
 		if(state == LOW) {
-			uart_puts("LOW\n");
+			uart_puts("LOW\r\n");
 		} else {
-			uart_puts("HIGH\n");
+			uart_puts("HIGH\r\n");
 		}
 	}
 	return 0;
