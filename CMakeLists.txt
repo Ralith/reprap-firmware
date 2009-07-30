@@ -21,4 +21,4 @@ add_executable(firmware
   uart.c
   )
 
-add_custom_command(TARGET firmware POST_BUILD COMMAND ./prepare.sh firmware)
+add_custom_command(TARGET firmware POST_BUILD COMMAND avr-objcopy -O ihex -R .eeprom firmware firmware.hex)
