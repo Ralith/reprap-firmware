@@ -9,7 +9,7 @@ set(CMAKE_CXX_COMPILER avr-g++)
 # Target atmega644p
 add_definitions( -mmcu=atmega644p )
 # Clock rate
-add_definitions( -DF_CPU=16000000 )
+add_definitions( -DF_CPU=16000000UL )
 # Optimize for size
 add_definitions( -Os -fpack-struct -fshort-enums )
 # Warnings
