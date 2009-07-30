@@ -18,7 +18,7 @@ add_definitions( -Wall )
 add_executable(firmware
   main.c
   digital.c
-  serial.c
+  uart.c
   )
 
 add_custom_command(TARGET firmware POST_BUILD COMMAND ./prepare.sh firmware)

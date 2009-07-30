@@ -1,12 +1,19 @@
 #include <avr/io.h>
+#include <avr/interrupt.h>
 #include <util/delay.h>
 
 #include "digital.h"
-#include "serial.h"
+#include "uart.h"
+
+#define UART_BAUD_RATE 19200
 
 int main(void)
 {
-	ser_init();
+	/* Enable UART for serial comms */
+	uart_init(UART_BAUD_SELECT(UART_BAUD_RATE, F_CPU));
+	/* Enable interrupts needed by UART lib */
+	sei();
+
 	dig_mode(1, OUTPUT);
 	dig_mode(19, INPUT);
 
@@ -15,9 +22,9 @@ int main(void)
 		state = dig_read(19);
 		dig_write(1, state);
 		if(state == LOW) {
-			ser_write_str("LOW\r\n");
+			uart_puts("LOW\n");
 		} else {
-			ser_write_str("HIGH\r\n");
+			uart_puts("HIGH\n");
 		}
 	}
 	return 0;
