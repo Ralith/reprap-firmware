@@ -213,7 +213,7 @@ LICENSE:
  #define UART1_DATA     UDR1
  #define UART1_UDRIE    UDRIE1
 #else
- #error "no UART definition for MCU available"
+ #error Unsupported MCU
 #endif
 
 
