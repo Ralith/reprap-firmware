@@ -46,7 +46,7 @@ bool dig_write(pin_t pin, digstate_t state)
 	return TRUE;
 }
 
-bool dig_write(pin_t pin, digstate_t state) 
+bool dig_toggle(pin_t pin, digstate_t state) 
 {
 	/* See Figure 1-1 in datasheet */
 	if(pin < PIN_MIN) {
