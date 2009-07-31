@@ -21,8 +21,8 @@ void stepdrive_init()
 	dig_mode(Y_DIR_PIN, OUTPUT);
 	dig_mode(Y_ENABLE_PIN, OUTPUT);
 	dig_mode(Y_MIN_PIN, INPUT);
-#ifdef Y_MAY_PIN
-	dig_mode(Y_MAY_PIN, INPUT);
+#ifdef Y_MAX_PIN
+	dig_mode(Y_MAX_PIN, INPUT);
 #endif
 	dig_write(Y_ENABLE_PIN, LOW);
 
@@ -30,8 +30,8 @@ void stepdrive_init()
 	dig_mode(Z_DIR_PIN, OUTPUT);
 	dig_mode(Z_ENABLE_PIN, OUTPUT);
 	dig_mode(Z_MIN_PIN, INPUT);
-#ifdef Z_MAZ_PIN
-	dig_mode(Z_MAZ_PIN, INPUT);
+#ifdef Z_MAX_PIN
+	dig_mode(Z_MAX_PIN, INPUT);
 #endif
 	dig_write(Z_ENABLE_PIN, LOW);
 }
