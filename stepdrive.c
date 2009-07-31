@@ -1,8 +1,10 @@
 #include "stepdrive.h"
 
 #include <avr/interrupt.h>
+#include <avr/pgmspace.h>
 
 #include "digital.h"
+#include "uart.h"
 
 #include "pins.h"
 
@@ -35,7 +37,22 @@ void stepdrive_init(void)
 #endif
 	dig_write(Z_ENABLE_PIN, LOW);
 
-	TCCR1B |= BV(CS01) | BV(CS00); /* Clock timer at F_CPU/64 */
-	OCR1A = 0;
+	TCCR1B |= _BV(CS01) | _BV(CS00) | /* Clock timer at F_CPU/64 */
+		_BV(WGM12);					/* Clear on Timer Compare mode */
+	/* TODO: Consider setting TOIE1 (overflow interrupt) */
+	TIMSK1 |= _BV(OCIE1A) | _BV(TOIE1);			/* Enable CTC interrupt */
+	OCR1A = 25000;				/* 100ms */
+
+	dig_mode(1, OUTPUT);
 }
 
+ISR(TIMER1_COMPA_vect) 
+{
+	dig_toggle(1);
+	uart_puts_P("tick\r\n");
+}
+
+ISR(TIMER1_OVF_vect) 
+{
+	uart_puts_P("OVERFLOW");
+}
