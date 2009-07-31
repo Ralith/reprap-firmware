@@ -52,15 +52,15 @@ digstate_t dig_read(pin_t pin)
 	if(pin < PIN_MIN) {
 		return LOW;
 	} else if(pin <= PIN_PORTB_MAX) { /* PORTB begins at PIN_MIN */
-		return (PINB & (pin - PIN_PORTB_MIN)) ? HIGH : LOW;
+		return (PINB & BV(pin - PIN_PORTB_MIN)) ? HIGH : LOW;
 	} else if(PIN_PORTD_MIN <= pin && pin <= PIN_PORTD_MAX) {
-		return (PIND & (pin - PIN_PORTC_MIN)) ? HIGH : LOW;
+		return (PIND & BV(pin - PIN_PORTD_MIN)) ? HIGH : LOW;
 	} else if(pin <= PIN_PORTC_MAX) { /* PORTC begins at PIN_PORTD_MAX + 1 */
-		return PINC & (pin - PIN_PORTC_MIN);
+		return PINC & BV(pin - PIN_PORTC_MIN);
 	} else if (PIN_PORTA_MIN <= pin && pin <= PIN_PORTA_MAX) {
 		/* PORTA is backwards for some reason, so we have to swap 7
 		 * 7 with 0, 6 with 1, etc. */
-		return (PINA & (7 - (pin - PIN_PORTA_MIN))) ? HIGH : LOW;
+		return (PINA & BV(7 - (pin - PIN_PORTA_MIN))) ? HIGH : LOW;
 	} else {
 		return LOW;
 	}

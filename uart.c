@@ -41,6 +41,10 @@ LICENSE:
 #include <avr/pgmspace.h>
 #include "uart.h"
 
+#include <stdlib.h>
+#include <string.h>
+
+#include "gcode.h"
 
 /*
  *  constants and macros
@@ -238,7 +242,8 @@ static volatile unsigned char UART1_RxTail;
 static volatile unsigned char UART1_LastRxError;
 #endif
 
-
+/* Number of chars since last newline */
+static volatile unsigned char gcode_blocklen;
 
 SIGNAL(UART0_RECEIVE_INTERRUPT)
 /*************************************************************************
@@ -266,20 +271,42 @@ Purpose:  called when the UART has received a character
 #elif defined ( ATMEGA_UART )
     lastRxError = (usr & (_BV(FE)|_BV(DOR)) );
 #endif
-        
-    /* calculate buffer index */ 
-    tmphead = ( UART_RxHead + 1) & UART_RX_BUFFER_MASK;
+
+	if(data == '\r' || data == '\n') {
+		if(gcode_blocklen == 0) {
+			return;
+		}
+		/* Complete gcode block received */
+
+		char *block = calloc(gcode_blocklen + 1, sizeof(char));
+		unsigned short i;
+		/* TODO: Replace this with bulk copy operations to save time */
+		for(i = 0; i < gcode_blocklen; i++) {
+			block[i] = uart_getc();
+		}
+		block[gcode_blocklen] = '\0';
+		parse_gcode(block);
+		free(block);
+
+		gcode_blocklen = 0;
+		return;
+	}
+
+	/* calculate buffer index */ 
+	tmphead = ( UART_RxHead + 1) & UART_RX_BUFFER_MASK;
     
-    if ( tmphead == UART_RxTail ) {
-        /* error: receive buffer overflow */
-        lastRxError = UART_BUFFER_OVERFLOW >> 8;
-    }else{
-        /* store new index */
-        UART_RxHead = tmphead;
-        /* store received data in buffer */
-        UART_RxBuf[tmphead] = data;
-    }
-    UART_LastRxError = lastRxError;   
+	if ( tmphead == UART_RxTail ) {
+		/* error: receive buffer overflow */
+		lastRxError = UART_BUFFER_OVERFLOW >> 8;
+	}else{
+		/* store new index */
+		UART_RxHead = tmphead;
+		/* store received data in buffer */
+		UART_RxBuf[tmphead] = data;
+		
+		gcode_blocklen++;
+	}
+    UART_LastRxError = lastRxError;
 }
 
 
@@ -313,6 +340,8 @@ Returns:  none
 **************************************************************************/
 void uart_init(unsigned int baudrate)
 {
+	gcode_blocklen = 0;
+	
     UART_TxHead = 0;
     UART_TxTail = 0;
     UART_RxHead = 0;
