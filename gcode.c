@@ -53,8 +53,9 @@ gword* readword(char **point)
 }
 
 #define TO_APPROX_BYTE(x) ((byte)(x + 0.1))
-#define MAYBE_INCHES(x) (inches ? 25.4 * x : x)
-
+#define MAYBE_IN(x) (inches ? 25.4 * x : x)
+#define MAYBE_REL(name, x) (relative ? x + name ## _last : x)
+#define CONVERT(name, x) MAYBE_REL(name, MAYBE_IN(x))
 
 /* Circular buffer of instructions to execute */
 volatile inst_t instructions[INST_BUFFER_LEN];
@@ -65,6 +66,7 @@ void parse_gcode(char *block)
 	/* Used to convert input to a consistent state */
 	static bool inches = FALSE;
 	static bool relative = FALSE;
+	static float x_last = 0, y_last = 0, z_last = 0;
 	
 	if(*block == '/') {			/* Block delete character */
 		return;
@@ -81,6 +83,9 @@ void parse_gcode(char *block)
 			case INTERP_ARC_CCW:
 				instructions[inst_write].interp = TO_APPROX_BYTE(word->value);
 				break;
+
+			case 4:
+				instructions[inst_write].dwell_secs = word->value;
 
 			case 20:
 				inches = TRUE;
@@ -109,15 +114,15 @@ void parse_gcode(char *block)
 
 			
 		case 'X':
-			instructions[inst_write].x = MAYBE_INCHES(word->value);
+			instructions[inst_write].x = CONVERT(x, word->value);
 			break;
 
 		case 'Y':
-			instructions[inst_write].y = MAYBE_INCHES(word->value);
+			instructions[inst_write].y = CONVERT(y, word->value);
 			break;
 
 		case 'Z':
-			instructions[inst_write].z = MAYBE_INCHES(word->value);
+			instructions[inst_write].z = CONVERT(z, word->value);
 			break;
 
 
