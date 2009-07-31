@@ -10,6 +10,8 @@ bool dig_mode(pin_t pin, digmode_t mode);
 
 bool dig_write(pin_t pin, digstate_t state);
 
+bool dig_toggle(pin_t pin);
+
 /* Returns LOW on invalid pin */
 digstate_t dig_read(pin_t pin);
 

@@ -46,6 +46,27 @@ bool dig_write(pin_t pin, digstate_t state)
 	return TRUE;
 }
 
+bool dig_write(pin_t pin, digstate_t state) 
+{
+	/* See Figure 1-1 in datasheet */
+	if(pin < PIN_MIN) {
+		return FALSE;
+	} else if(pin <= PIN_PORTB_MAX) { /* PORTB begins at PIN_MIN */
+		PORTB ^= BV(pin - PIN_PORTB_MIN);
+	} else if(PIN_PORTD_MIN <= pin && pin <= PIN_PORTD_MAX) {
+		PORTD ^= BV(pin - PIN_PORTD_MIN);
+	} else if(pin <= PIN_PORTC_MAX) { /* PORTC begins at PIN_PORTD_MAX + 1 */
+		PORTC ^= BV(pin - PIN_PORTC_MIN);
+	} else if (PIN_PORTA_MIN <= pin && pin <= PIN_PORTA_MAX) {
+		/* PORTA is backwards for some reason, so we have to swap 7
+		 * 7 with 0, 6 with 1, etc. */
+		PORTA ^= BV(7 - (pin - PIN_PORTA_MIN));
+	} else {
+		return FALSE;
+	}
+	return TRUE;
+}
+
 digstate_t dig_read(pin_t pin) 
 {
 	/* See Figure 1-1 in datasheet */
