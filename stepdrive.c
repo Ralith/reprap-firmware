@@ -6,7 +6,7 @@
 
 #include "pins.h"
 
-void stepdrive_init() 
+void stepdrive_init(void)
 {
 	dig_mode(X_STEP_PIN, OUTPUT);
 	dig_mode(X_DIR_PIN, OUTPUT);
