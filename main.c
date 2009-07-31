@@ -20,6 +20,8 @@ int main(void)
 	sei();
 
 	for(;;) {
+		/* Let the interrupts do all the work */
 	}
+	
 	return 0;
 }

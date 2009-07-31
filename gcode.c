@@ -2,8 +2,6 @@
 
 #include <stdlib.h>
 
-#include "types.h"
-
 typedef struct gword 
 {
 	char letter;
@@ -55,7 +53,10 @@ gword* readword(char **point)
 
 #define TO_APPROX_BYTE(x) ((byte)(x + 0.1))
 
-volatile gc_state_t gc_state;
+/* Circular buffer of instructions to execute */
+volatile inst_t instructions[INST_BUFFER_LEN];
+volatile ubyte inst_read;
+volatile ubyte inst_write;
 void parse_gcode(char *block) 
 {
 	if(*block == '/') {			/* Block delete character */
@@ -68,16 +69,11 @@ void parse_gcode(char *block)
 		case 'G':
 			switch(TO_APPROX_BYTE(word->value)) {
 			case INTERP_RAPID:
-				gc_state.interp_mode = INTERP_RAPID;
-				break;
 			case INTERP_LINEAR:
-				gc_state.interp_mode = INTERP_LINEAR;
-				break;
 			case INTERP_ARC_CW:
-				gc_state.interp_mode = INTERP_ARC_CW;
-				break;
 			case INTERP_ARC_CCW:
-				gc_state.interp_mode = INTERP_ARC_CCW;
+				instructions[inst_write].type = INST_INTERP;
+				instructions[inst_write].interp = TO_APPROX_BYTE(word->value);
 				break;
 
 			default:
