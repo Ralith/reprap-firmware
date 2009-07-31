@@ -34,4 +34,8 @@ void stepdrive_init(void)
 	dig_mode(Z_MAX_PIN, INPUT);
 #endif
 	dig_write(Z_ENABLE_PIN, LOW);
+
+	TCCR1B |= BV(CS01) | BV(CS00); /* Clock timer at F_CPU/64 */
+	OCR1A = 0;
 }
+
