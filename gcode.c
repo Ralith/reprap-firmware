@@ -24,6 +24,7 @@ gword* readword(char **point)
 
 		/* Comment; end of input */
 		case ';':
+			/* TODO: Comments not an error */
 			return NULL;
 
 		default:
@@ -52,6 +53,8 @@ gword* readword(char **point)
 }
 
 #define TO_APPROX_BYTE(x) ((byte)(x + 0.1))
+#define MAYBE_INCHES(x) (inches ? 25.4 * x : x)
+
 
 /* Circular buffer of instructions to execute */
 volatile inst_t instructions[INST_BUFFER_LEN];
@@ -59,6 +62,10 @@ volatile ubyte inst_read;
 volatile ubyte inst_write;
 void parse_gcode(char *block) 
 {
+	/* Used to convert input to a consistent state */
+	static bool inches = FALSE;
+	static bool relative = FALSE;
+	
 	if(*block == '/') {			/* Block delete character */
 		return;
 	}
@@ -72,8 +79,23 @@ void parse_gcode(char *block)
 			case INTERP_LINEAR:
 			case INTERP_ARC_CW:
 			case INTERP_ARC_CCW:
-				instructions[inst_write].type = INST_INTERP;
 				instructions[inst_write].interp = TO_APPROX_BYTE(word->value);
+				break;
+
+			case 20:
+				inches = TRUE;
+				break;
+
+			case 21:
+				inches = FALSE;
+				break;
+
+			case 90:
+				relative = FALSE;
+				break;
+
+			case 91:
+				relative = TRUE;
 				break;
 
 			default:
@@ -87,15 +109,15 @@ void parse_gcode(char *block)
 
 			
 		case 'X':
-			/* TODO */
+			instructions[inst_write].x = MAYBE_INCHES(word->value);
 			break;
 
 		case 'Y':
-			/* TODO */
+			instructions[inst_write].y = MAYBE_INCHES(word->value);
 			break;
 
 		case 'Z':
-			/* TODO */
+			instructions[inst_write].z = MAYBE_INCHES(word->value);
 			break;
 
 

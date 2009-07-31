@@ -3,12 +3,6 @@
 #ifndef _TYPES_H_
 #define _TYPES_H_
 
-typedef struct point {
-	float x;
-	float y;
-	float z;
-} point_t;
-
 typedef enum digmode {
 	INPUT = 0,
 	OUTPUT = 1

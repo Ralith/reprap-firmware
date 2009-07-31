@@ -14,19 +14,18 @@ typedef enum interp
 	INTERP_ARC_CCW = 3,
 } interp_t;
 
-typedef enum inst_type
-{
-	INST_INTERP,				/* G0-G4 */
-} inst_type_t;
-
-/* Instruction */
+/* Instruction; represents one parsed gcode block */
 typedef struct inst 
 {
-	inst_type_t type;
-	union 
-	{
-		interp_t interp;
-	};
+	interp_t interp;
+	float x;
+	float y;
+	float z;
+	float feedrate;
+	float radius;				/* Center-style arcs are converted */
+	float spindlerate;
+	float extrder_temp;
+	float dwell_secs;
 } inst_t;
 
 #ifndef INST_BUFFER_LEN
