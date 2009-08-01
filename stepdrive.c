@@ -93,9 +93,30 @@ ISR(TIMER1_OVF_vect)
 }
 
 /* Pin change */
+/* TODO: Extruder temperature PID */
 ISR(PCINT0_vect) 
 {
-	
+	if(dig_read(X_MIN_PIN) == ENDSTOP_CLOSED
+#ifdef X_MAX_PIN
+	   || dig_read(X_MAX_PIN) == ENDSTOP_CLOSED
+#endif
+		) {
+		/* TODO: Halt X motion */
+	}
+	if(dig_read(Y_MIN_PIN) == ENDSTOP_CLOSED
+#ifdef Y_MAX_PIN
+	   || dig_read(Y_MAX_PIN) == ENDSTOP_CLOSED
+#endif
+		) {
+		/* TODO: Halt Y motion */
+	}
+	if(dig_read(Z_MIN_PIN) == ENDSTOP_CLOSED
+#ifdef Z_MAX_PIN
+	   || dig_read(Z_MAX_PIN) == ENDSTOP_CLOSED
+#endif
+		) {
+		/* TODO: Halt Z motion */
+	}
 }
 
 ISR(PCINT1_vect, ISR_ALIASOF(PCINT0_vect));

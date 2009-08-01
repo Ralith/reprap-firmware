@@ -22,4 +22,7 @@
 #define Z_MAX_PIN 2
 /* #error You must specify the Z stepper pins. */
 
+#define ENDSTOP_CLOSED LOW
+#define ENDSTOP_OPEN HIGH
+
 #endif
