@@ -63,6 +63,6 @@ extern volatile ubyte inst_read;
 extern volatile ubyte inst_write;
 
 /* Parses and prepares for execution of the provided null-terminated block. */
-void parse_gcode(char *block);
+void gcode_parcec(char c);
 
 #endif

@@ -82,7 +82,7 @@ void stepdrive_init(void)
 /* Timer interval expired */
 ISR(TIMER1_COMPA_vect) 
 {
-	dig_toggle(1);
+	/*dig_toggle(1);*/
 	uart_puts_P("tick\r\n");
 }
 
@@ -96,14 +96,13 @@ ISR(TIMER1_OVF_vect)
 /* TODO: Extruder temperature PID */
 ISR(PCINT0_vect) 
 {
-	uart_puts_P("Pin change: ");
+	dig_toggle(1);
 	if(dig_read(X_MIN_PIN) == ENDSTOP_CLOSED
 #ifdef X_MAX_PIN
 	   || dig_read(X_MAX_PIN) == ENDSTOP_CLOSED
 #endif
 		) {
 		/* TODO: Halt X motion */
-		uart_puts_P("X endstop closed\r\n");
 	}
 	if(dig_read(Y_MIN_PIN) == ENDSTOP_CLOSED
 #ifdef Y_MAX_PIN
@@ -111,7 +110,6 @@ ISR(PCINT0_vect)
 #endif
 		) {
 		/* TODO: Halt Y motion */
-		uart_puts_P("Y endstop closed\r\n");
 	}
 	if(dig_read(Z_MIN_PIN) == ENDSTOP_CLOSED
 #ifdef Z_MAX_PIN
@@ -119,7 +117,6 @@ ISR(PCINT0_vect)
 #endif
 		) {
 		/* TODO: Halt Z motion */
-		uart_puts_P("Z endstop closed\r\n");
 	}
 }
 

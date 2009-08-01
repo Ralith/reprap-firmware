@@ -19,8 +19,12 @@ int main(void)
 	/* Enable interrupts needed by UART lib */
 	sei();
 
-	for(;;) {
-		/* Let the interrupts do all the work */
+	unsigned short recv;
+	for(;; recv = uart_getc()) {
+		/* TODO: Handle errors */
+		if(recv != UART_NO_DATA) {
+			gcode_parsec(recv);
+		}
 	}
 	
 	return 0;

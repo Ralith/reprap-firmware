@@ -244,6 +244,7 @@ static volatile unsigned char UART1_LastRxError;
 
 /* Number of chars since last newline */
 static volatile unsigned char gcode_blocklen;
+volatile unsigned char gcode_block_ready;
 
 SIGNAL(UART0_RECEIVE_INTERRUPT)
 /*************************************************************************
@@ -271,26 +272,6 @@ Purpose:  called when the UART has received a character
 #elif defined ( ATMEGA_UART )
     lastRxError = (usr & (_BV(FE)|_BV(DOR)) );
 #endif
-
-	if(data == '\r' || data == '\n') {
-		if(gcode_blocklen == 0) {
-			return;
-		}
-		/* Complete gcode block received */
-
-		char *block = calloc(gcode_blocklen + 1, sizeof(char));
-		unsigned short i;
-		/* TODO: Replace this with bulk copy operations to save time */
-		for(i = 0; i < gcode_blocklen; i++) {
-			block[i] = uart_getc();
-		}
-		block[gcode_blocklen] = '\0';
-		parse_gcode(block);
-		free(block);
-
-		gcode_blocklen = 0;
-		return;
-	}
 
 	/* calculate buffer index */ 
 	tmphead = ( UART_RxHead + 1) & UART_RX_BUFFER_MASK;
