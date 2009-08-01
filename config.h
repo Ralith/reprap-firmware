@@ -1,5 +1,5 @@
-#ifndef _PINS_H_
-#define _PINS_H_
+#ifndef _CONFIG_H_
+#define _CONFIG_H_
 
 #define X_STEP_PIN 6
 #define X_DIR_PIN 5
@@ -20,6 +20,6 @@
 #define Z_ENABLE_PIN 4
 #define Z_MIN_PIN 3
 #define Z_MAX_PIN 2
-/* #error You must specify the X stepper pins. */
+/* #error You must specify the Z stepper pins. */
 
 #endif

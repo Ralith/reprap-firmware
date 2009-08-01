@@ -6,7 +6,7 @@
 #include "digital.h"
 #include "uart.h"
 #include "util.h"
-#include "pins.h"
+#include "config.h"
 
 void stepdrive_init(void)
 {
@@ -92,6 +92,7 @@ ISR(TIMER1_OVF_vect)
 	uart_puts_P("OVERFLOW");
 }
 
+/* Pin change */
 ISR(PCINT0_vect) 
 {
 	
