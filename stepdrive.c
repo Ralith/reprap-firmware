@@ -62,19 +62,19 @@ void stepdrive_init(void)
 	ubyte i;
 	for(i = 0; endstops[i] != 0; i++) {
 		if(endstops[i] <= PIN_PORTB_MAX) {
-			BSET(PCICR, PCIE0, 1);
-			BSET(PCMSK0, endstops[i] - PIN_PORTB_MIN, 1);
-		} else if(PIN_PORTD_MIN <= endstops[i] && endstops[i] <= PIN_PORTD_MAX) {
 			BSET(PCICR, PCIE1, 1);
-			BSET(PCMSK1, endstops[i] - PIN_PORTD_MIN, 1);
+			BSET(PCMSK1, endstops[i] - PIN_PORTB_MIN, 1);
+		} else if(PIN_PORTD_MIN <= endstops[i] && endstops[i] <= PIN_PORTD_MAX) {
+			BSET(PCICR, PCIE3, 1);
+			BSET(PCMSK3, endstops[i] - PIN_PORTD_MIN, 1);
 		} else if(endstops[i] <= PIN_PORTC_MAX) { /* PORTC begins at PIN_PORTD_MAX + 1 */
 			BSET(PCICR, PCIE2, 1);
 			BSET(PCMSK2, endstops[i] - PIN_PORTC_MIN, 1);
 		} else if (PIN_PORTA_MIN <= endstops[i] && endstops[i] <= PIN_PORTA_MAX) {
 			/* PORTA is backwards for some reason, so we have to swap 7
 			 * 7 with 0, 6 with 1, etc. */
-			BSET(PCICR, PCIE3, 1);
-			BSET(PCMSK3, (7 - (endstops[i] - PIN_PORTA_MIN)), 1);
+			BSET(PCICR, PCIE0, 1);
+			BSET(PCMSK0, (7 - (endstops[i] - PIN_PORTA_MIN)), 1);
 		}
 	}
 }
@@ -96,6 +96,7 @@ ISR(TIMER1_OVF_vect)
 /* TODO: Extruder temperature PID */
 ISR(PCINT0_vect) 
 {
+	uart_puts_P("Pin change: ");
 	if(dig_read(X_MIN_PIN) == ENDSTOP_CLOSED
 #ifdef X_MAX_PIN
 	   || dig_read(X_MAX_PIN) == ENDSTOP_CLOSED
