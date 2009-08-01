@@ -18,7 +18,7 @@ void stepdrive_init(void)
 #ifdef X_MAX_PIN
 	dig_mode(X_MAX_PIN, INPUT);
 #endif
-	dig_write(X_ENABLE_PIN, LOW);
+	dig_write(X_ENABLE_PIN, STEPPER_ENABLE_OFF);
 
 	dig_mode(Y_STEP_PIN, OUTPUT);
 	dig_mode(Y_DIR_PIN, OUTPUT);
@@ -27,7 +27,7 @@ void stepdrive_init(void)
 #ifdef Y_MAX_PIN
 	dig_mode(Y_MAX_PIN, INPUT);
 #endif
-	dig_write(Y_ENABLE_PIN, LOW);
+	dig_write(Y_ENABLE_PIN, STEPPER_ENABLE_OFF);
 
 	dig_mode(Z_STEP_PIN, OUTPUT);
 	dig_mode(Z_DIR_PIN, OUTPUT);
@@ -36,7 +36,7 @@ void stepdrive_init(void)
 #ifdef Z_MAX_PIN
 	dig_mode(Z_MAX_PIN, INPUT);
 #endif
-	dig_write(Z_ENABLE_PIN, LOW);
+	dig_write(Z_ENABLE_PIN, STEPPER_ENABLE_OFF);
 
 	/* Configure control timer */
 	TCCR1B |= _BV(CS01) | _BV(CS00) | /* Clock timer at F_CPU/64 */
@@ -102,6 +102,7 @@ ISR(PCINT0_vect)
 #endif
 		) {
 		/* TODO: Halt X motion */
+		uart_puts_P("X endstop closed\r\n");
 	}
 	if(dig_read(Y_MIN_PIN) == ENDSTOP_CLOSED
 #ifdef Y_MAX_PIN
@@ -109,6 +110,7 @@ ISR(PCINT0_vect)
 #endif
 		) {
 		/* TODO: Halt Y motion */
+		uart_puts_P("Y endstop closed\r\n");
 	}
 	if(dig_read(Z_MIN_PIN) == ENDSTOP_CLOSED
 #ifdef Z_MAX_PIN
@@ -116,6 +118,7 @@ ISR(PCINT0_vect)
 #endif
 		) {
 		/* TODO: Halt Z motion */
+		uart_puts_P("Z endstop closed\r\n");
 	}
 }
 
