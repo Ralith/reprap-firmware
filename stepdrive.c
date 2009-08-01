@@ -91,3 +91,12 @@ ISR(TIMER1_OVF_vect)
 {
 	uart_puts_P("OVERFLOW");
 }
+
+ISR(PCINT0_vect) 
+{
+	
+}
+
+ISR(PCINT1_vect, ISR_ALIASOF(PCINT0_vect));
+ISR(PCINT2_vect, ISR_ALIASOF(PCINT0_vect));
+ISR(PCINT3_vect, ISR_ALIASOF(PCINT0_vect));
