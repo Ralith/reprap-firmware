@@ -104,7 +104,7 @@ CDEFS = -DF_CPU=$(F_CPU)UL
 # uncomment and adapt these line if you want different UART library buffer size
 # 256 is the longest permissible gcode block
 CDEFS += -DUART_RX_BUFFER_SIZE=256
-#CDEFS += -DUART_TX_BUFFER_SIZE=128
+CDEFS += -DUART_TX_BUFFER_SIZE=128
 
 
 # Place -I options here
