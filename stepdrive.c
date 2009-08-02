@@ -49,7 +49,7 @@ void stepdrive_init(void)
 	dig_mode(1, OUTPUT);
 
 	/* Establish pin change interrupts for endstops */
-	const ubyte endstops[] = {X_MIN_PIN, Y_MIN_PIN, Z_MIN_PIN,
+	const uint8_t endstops[] = {X_MIN_PIN, Y_MIN_PIN, Z_MIN_PIN,
 #ifdef X_MAX_PIN
 							  X_MAX_PIN,
 #endif
@@ -60,7 +60,7 @@ void stepdrive_init(void)
 							  Z_MAX_PIN,
 #endif
 							  0};
-	ubyte i;
+	uint8_t i;
 	for(i = 0; endstops[i] != 0; i++) {
 		if(endstops[i] <= PIN_PORTB_MAX) {
 			BSET(PCICR, PCIE1, 1);
@@ -92,7 +92,7 @@ ISR(TIMER1_COMPA_vect)
 	}
 
 	/* Interpolation type */
-	static ubyte interp = INTERP_LINEAR;
+	static uint8_t interp = INTERP_LINEAR;
 	if(instructions[inst_read].changes & CHANGE_INTERP) {
 		interp = instructions[inst_read].interp;
 	}

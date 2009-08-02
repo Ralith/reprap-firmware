@@ -10,7 +10,7 @@
 #error This code requires an implementation with floating point NAN support
 #endif
 
-#define TO_APPROX_UBYTE(x) ((ubyte)(x + 0.1))
+#define TO_APPROX_UBYTE(x) ((uint8_t)(x + 0.1))
 #define MAYBE_IN(x) (inches ? 25.4 * x : x)
 #define MAYBE_REL(name, x) (relative ? x + name ## _last : x)
 #define CONVERT(name, x) MAYBE_REL(name, MAYBE_IN(x))
@@ -22,8 +22,8 @@
 
 /* Circular buffer of instructions to execute */
 volatile inst_t instructions[INST_BUFFER_LEN];
-volatile ubyte inst_read;
-volatile ubyte inst_write;
+volatile uint8_t inst_read;
+volatile uint8_t inst_write;
 
 void gcode_init() 
 {
@@ -41,8 +41,8 @@ void gcode_parsew(const char letter, const float value)
 	static float x_last = 0, y_last = 0, z_last = 0;
 
 	/* Used to track params */
-	static ubyte m_last = 0;
-	static ubyte g_last = 0;
+	static uint8_t m_last = 0;
+	static uint8_t g_last = 0;
 
 	/* Aids converting I/J (center) arcs to R (radius) arcs */
 	static float arc_i, arc_j;
@@ -219,7 +219,7 @@ void gcode_parsec(char c)
 	static char word_letter = '\0';
 	/* 32 chars of number should be enough for anyone. */
 	static char word_value[32];
-	static ubyte word_value_pos = 0;
+	static uint8_t word_value_pos = 0;
 	static bool ignore_block = FALSE;
 	/* Number of chars into the block */
 	static unsigned short index = 0;
@@ -252,7 +252,7 @@ void gcode_parsec(char c)
 	case ';':
 		if(index != 0) { /* Block complete */
 			/* Increment write index */
-			ubyte nextwrite = (inst_write + 1) & INST_BUFFER_MASK;
+			uint8_t nextwrite = (inst_write + 1) & INST_BUFFER_MASK;
 			while(nextwrite == inst_read)
 			{
 				/* We caught up with instruction execution, wait for it to move on */

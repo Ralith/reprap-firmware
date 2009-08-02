@@ -3,6 +3,8 @@
 #ifndef _TYPES_H_
 #define _TYPES_H_
 
+#include <stdint.h>
+
 typedef enum digmode {
 	INPUT = 0,
 	OUTPUT = 1
@@ -24,16 +26,13 @@ typedef enum digstate {
 #define PIN_PORTA_MIN 33
 #define PIN_PORTA_MAX 40
 
-typedef unsigned char pin_t;
+typedef uint8_t pin_t;
 
 typedef int port_t;
 typedef int ddr_t;
 
 #define TRUE 1
 #define FALSE 0
-typedef unsigned char bool;
-
-typedef signed char byte;
-typedef unsigned char ubyte;
+typedef uint8_t bool;
 
 #endif

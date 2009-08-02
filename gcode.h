@@ -43,7 +43,7 @@ typedef struct inst
 {
 	unsigned short changes;
 	
-	ubyte interp;
+	uint8_t interp;
 	float x;
 	float y;
 	float z;
@@ -51,7 +51,7 @@ typedef struct inst
 	float radius;				/* Center-style arcs are converted */
 	float extrude_rate;
 	float extrude_temp;
-	ubyte extrude_state;
+	uint8_t extrude_state;
 	float dwell_secs;
 } inst_t;
 
@@ -60,8 +60,8 @@ typedef struct inst
 #endif
 /* Circular buffer of instructions to execute */
 extern volatile inst_t instructions[INST_BUFFER_LEN];
-extern volatile ubyte inst_read;
-extern volatile ubyte inst_write;
+extern volatile uint8_t inst_read;
+extern volatile uint8_t inst_write;
 
 /* Parses and prepares for execution of the provided null-terminated block. */
 void gcode_parcec(char c);
