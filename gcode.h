@@ -41,7 +41,7 @@ typedef enum inst_change
 /* Instruction; represents one parsed gcode block */
 typedef struct inst 
 {
-	unsigned short changes;
+	uint16_t changes;
 	
 	uint8_t interp;
 	float x;
@@ -55,15 +55,20 @@ typedef struct inst
 	float dwell_secs;
 } inst_t;
 
+/* Circular buffer of instructions to execute */
 #ifndef INST_BUFFER_LEN
 #define INST_BUFFER_LEN 32
 #endif
-/* Circular buffer of instructions to execute */
+#define INST_BUFFER_MASK (INST_BUFFER_LEN - 1)
+#if ( INST_BUFFER_LEN & INST_BUFFER_MASK )
+#error Instruction buffer size is not a power of 2
+#endif
 extern volatile inst_t instructions[INST_BUFFER_LEN];
 extern volatile uint8_t inst_read;
 extern volatile uint8_t inst_write;
 
 /* Parses and prepares for execution of the provided null-terminated block. */
-void gcode_parcec(char c);
+void gcode_parsew(const char letter, const float value);
+void gcode_parcec(const char c);
 
 #endif

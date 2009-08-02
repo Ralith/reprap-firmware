@@ -127,7 +127,8 @@ ISR(TIMER1_COMPA_vect)
 	/* Get current extruder temperature */
 	if(instructions[inst_read].changes & CHANGE_GET_TEMP) {
 		uart_puts_P("T:");
-		uart_puts(
+		/* TODO: Read and print temp */
+		uart_puts_P("\r\n");
 	}
 
 	/* Circularly increment read index when done with instruction */

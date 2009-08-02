@@ -26,7 +26,7 @@ int main(void)
 	dig_mode(DEBUG_LED_PIN, OUTPUT);
 	dig_write(DEBUG_LED_PIN, HIGH);
 #endif
-	unsigned short recv;
+	uint16_t recv;
 	for(;; recv = uart_getc()) {
 		/* TODO: Handle errors */
 		if(recv != UART_NO_DATA) {

@@ -1,8 +1,9 @@
 #include "gcode.h"
 
+#include <ctype.h>
 #include <stdlib.h>
-#include <avr/pgmspace.h>
 #include <math.h>
+#include <avr/pgmspace.h>
 
 #include "uart.h"
 
@@ -14,11 +15,6 @@
 #define MAYBE_IN(x) (inches ? 25.4 * x : x)
 #define MAYBE_REL(name, x) (relative ? x + name ## _last : x)
 #define CONVERT(name, x) MAYBE_REL(name, MAYBE_IN(x))
-
-#define INST_BUFFER_MASK (INST_BUFFER_LEN - 1)
-#if ( INST_BUFFER_LEN & INST_BUFFER_MASK )
-#error Instruction buffer size is not a power of 2
-#endif
 
 /* Circular buffer of instructions to execute */
 volatile inst_t instructions[INST_BUFFER_LEN];
@@ -213,7 +209,7 @@ void gcode_parsew(const char letter, const float value)
 }
 
 /* Parse a single character */
-void gcode_parsec(char c) 
+void gcode_parsec(const char c) 
 {
 	/* Cross-call state tracking */
 	static char word_letter = '\0';
@@ -222,7 +218,7 @@ void gcode_parsec(char c)
 	static uint8_t word_value_pos = 0;
 	static bool ignore_block = FALSE;
 	/* Number of chars into the block */
-	static unsigned short index = 0;
+	static uint16_t index = 0;
 
 	if(ignore_block) {
 		if(c == '\r' || c == '\n') {
@@ -265,7 +261,7 @@ void gcode_parsec(char c)
 			word_value_pos = 0;
 			index = 0;
 			/* TODO: Use real hardware or software flow control */
-			uart_putstr_P("ok\r\n");
+			uart_puts_P("ok\r\n");
 			return;
 		} else {
 			/* Don't let index be incremented for empty lines */
