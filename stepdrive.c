@@ -82,7 +82,6 @@ void stepdrive_init(void)
 /* Timer interval expired */
 ISR(TIMER1_COMPA_vect) 
 {
-	/*dig_toggle(1);*/
 	uart_puts_P("tick\r\n");
 }
 

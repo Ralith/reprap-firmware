@@ -35,4 +35,6 @@
 #define EXTRUDER_HEATER_PWM_PIN 20
 #define EXTRUDER_HEATER_TEMP_PIN 40
 
+#define DEBUG_LED_PIN 1
+
 #endif
