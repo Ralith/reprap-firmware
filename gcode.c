@@ -276,20 +276,19 @@ void gcode_parsec(char c)
 	default:
 		if(word_letter == '\0') {
 			word_letter = c;
+		} else if(isdigit(c)) {
+			word_value[word_value_pos++] = c;
 		} else {
-			if(c >= '0' && c <= '9') {
-				word_value[word_value_pos++] = c;
-			} else {
-				/* Got a full word, interpret it */
-				char *endptr;
-				gcode_parsew(word_letter, strtod(word_value, &endptr));
-				if(endptr == word_value) {
-					/* TODO: Error */
-				}
-				word_value_pos = 0;
-				word_letter = c;
+			/* Got a full word, interpret it */
+			char *endptr;
+			gcode_parsew(word_letter, strtod(word_value, &endptr));
+			if(endptr == word_value) {
+				/* TODO: Error */
 			}
+			word_value_pos = 0;
+			word_letter = c;
 		}
+		
 		break;
 	}
 	
