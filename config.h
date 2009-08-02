@@ -33,8 +33,12 @@
 #define EXTRUDER_MOTOR_PWM_PIN 19
 #define EXTRUDER_MOTOR_DIR_PIN 18
 #define EXTRUDER_HEATER_PWM_PIN 20
-#define EXTRUDER_HEATER_TEMP_PIN 40
+#define EXTRUDER_SENSOR_PIN 40
+#define EXTRUDER_SENSOR_THERMOCOUPLE
 
 #define DEBUG_LED_PIN 1
+
+#define DEFAULT_FEEDRATE 60		 /* cm/minute */
+#define DEFAULT_EXTRUDE_RATE 100 /* PWM duty cycle; TODO: Stepstruder support */
 
 #endif

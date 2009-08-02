@@ -34,15 +34,16 @@ typedef enum inst_change
 	CHANGE_EXTRUDE_RATE = BV(6),
 	CHANGE_EXTRUDE_TEMP = BV(7),
 	CHANGE_EXTRUDE_STATE = BV(8),
-	CHANGE_DWELL_SECS = BV(9)
+	CHANGE_DWELL_SECS = BV(9),
+	CHANGE_GET_TEMP = BV(10),
 } inst_change_t;
 
 /* Instruction; represents one parsed gcode block */
 typedef struct inst 
 {
-	unsigned short change_mask;
+	unsigned short changes;
 	
-	interp_t interp;
+	ubyte interp;
 	float x;
 	float y;
 	float z;
@@ -50,7 +51,7 @@ typedef struct inst
 	float radius;				/* Center-style arcs are converted */
 	float extrude_rate;
 	float extrude_temp;
-	extrude_state_t extrude_state;
+	ubyte extrude_state;
 	float dwell_secs;
 } inst_t;
 

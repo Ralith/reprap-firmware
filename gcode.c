@@ -29,7 +29,7 @@ void gcode_init()
 {
 	inst_write = 0;
 	inst_read = 0;
-	instructions[inst_write].change_mask = 0;
+	instructions[inst_write].changes = 0;
 }
 
 void gcode_parsew(const char letter, const float value) 
@@ -58,7 +58,7 @@ void gcode_parsew(const char letter, const float value)
 		case INTERP_ARC_CW:
 		case INTERP_ARC_CCW:
 			instructions[inst_write].interp = g_last;
-			instructions[inst_write].change_mask |= CHANGE_INTERP;
+			instructions[inst_write].changes |= CHANGE_INTERP;
 			break;
 
 		case 4:
@@ -80,7 +80,7 @@ void gcode_parsew(const char letter, const float value)
 
 		case 92:
 			instructions[inst_write].interp = INTERP_OFFSET;
-			instructions[inst_write].change_mask |= CHANGE_INTERP;
+			instructions[inst_write].changes |= CHANGE_INTERP;
 			break;
 
 		default:
@@ -95,13 +95,14 @@ void gcode_parsew(const char letter, const float value)
 		case EX_REVERSE:
 		case EX_OFF:
 			instructions[inst_write].extrude_state = m_last;
-			instructions[inst_write].change_mask |= CHANGE_EXTRUDE_STATE;
+			instructions[inst_write].changes |= CHANGE_EXTRUDE_STATE;
 			break;
 				
 		case 104:
 			/* Temp change, needs param */
 			break;
 		case 105:
+			instructions[inst_write].changes |= CHANGE_GET_TEMP;
 			/* TODO: Get temp */
 			break;
 
@@ -133,19 +134,19 @@ void gcode_parsew(const char letter, const float value)
 		switch(m_last) {
 		case 104:
 			instructions[inst_write].extrude_temp = value;
-			instructions[inst_write].change_mask |= CHANGE_EXTRUDE_TEMP;
+			instructions[inst_write].changes |= CHANGE_EXTRUDE_TEMP;
 			break;
 
 		case 108:
 			instructions[inst_write].extrude_rate = value;
-			instructions[inst_write].change_mask |= CHANGE_EXTRUDE_RATE;
+			instructions[inst_write].changes |= CHANGE_EXTRUDE_RATE;
 			break;
 
 		default:
 			switch(g_last) {
 			case 4:
 				instructions[inst_write].dwell_secs = value;
-				instructions[inst_write].change_mask |= CHANGE_DWELL_SECS;
+				instructions[inst_write].changes |= CHANGE_DWELL_SECS;
 
 			default:
 				goto unsupported;
@@ -157,30 +158,30 @@ void gcode_parsew(const char letter, const float value)
 	/* TODO: Consider converting these to multiples of resolution */
 	case 'X':
 		instructions[inst_write].x = CONVERT(x, value);
-		instructions[inst_write].change_mask |= CHANGE_X;
+		instructions[inst_write].changes |= CHANGE_X;
 		break;
 
 	case 'Y':
 		instructions[inst_write].y = CONVERT(y, value);
-		instructions[inst_write].change_mask |= CHANGE_Y;
+		instructions[inst_write].changes |= CHANGE_Y;
 		break;
 
 	case 'Z':
 		instructions[inst_write].z = CONVERT(z, value);
-		instructions[inst_write].change_mask |= CHANGE_Z;
+		instructions[inst_write].changes |= CHANGE_Z;
 		break;
 
 	case 'F':
 		instructions[inst_write].feedrate = MAYBE_IN(value);
-		instructions[inst_write].change_mask |= CHANGE_FEEDRATE;
+		instructions[inst_write].changes |= CHANGE_FEEDRATE;
 		break;
 
 	case 'R':
 		instructions[inst_write].radius = MAYBE_IN(value);
-		instructions[inst_write].change_mask |= CHANGE_RADIUS;
+		instructions[inst_write].changes |= CHANGE_RADIUS;
 		break;
 	case 'I':
-		instructions[inst_write].change_mask |= CHANGE_RADIUS;
+		instructions[inst_write].changes |= CHANGE_RADIUS;
 		if(isnan(arc_j)) {
 			instructions[inst_write].radius = MAYBE_IN(value);
 			arc_i = instructions[inst_write].radius;
@@ -189,7 +190,7 @@ void gcode_parsew(const char letter, const float value)
 		}
 		break;
 	case 'J':
-		instructions[inst_write].change_mask |= CHANGE_RADIUS;
+		instructions[inst_write].changes |= CHANGE_RADIUS;
 		if(isnan(arc_i)) {
 			instructions[inst_write].radius = MAYBE_IN(value);
 			arc_j = instructions[inst_write].radius;
@@ -259,7 +260,7 @@ void gcode_parsec(char c)
 			inst_write = nextwrite;
 
 			/* Initialize */
-			instructions[inst_write].change_mask = 0;
+			instructions[inst_write].changes = 0;
 			word_letter = '\0';
 			word_value_pos = 0;
 			index = 0;

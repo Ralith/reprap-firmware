@@ -5,6 +5,7 @@
 
 #include "digital.h"
 #include "uart.h"
+#include "gcode.h"
 #include "util.h"
 #include "config.h"
 
@@ -77,12 +78,60 @@ void stepdrive_init(void)
 			BSET(PCMSK0, (7 - (endstops[i] - PIN_PORTA_MIN)), 1);
 		}
 	}
+
+	/* TODO: Set default extrusion rate/temperature */
 }
 
 /* Timer interval expired */
 ISR(TIMER1_COMPA_vect) 
 {
-	uart_puts_P("tick\r\n");
+	if(inst_read == inst_write)
+	{
+		/* No instructions waiting */
+		return;
+	}
+
+	/* Interpolation type */
+	static ubyte interp = INTERP_LINEAR;
+	if(instructions[inst_read].changes & CHANGE_INTERP) {
+		interp = instructions[inst_read].interp;
+	}
+
+	/* Movement speed */
+	static float feedrate = DEFAULT_FEEDRATE;
+	if(instructions[inst_read].changes & CHANGE_FEEDRATE) {
+		feedrate = instructions[inst_read].feedrate;
+	}
+
+	/* Extrusion rate */
+	if(instructions[inst_read].changes & CHANGE_EXTRUDE_RATE) {
+		/* TODO: Set extruder motor PWM */
+	}
+
+	/* Extrusion temperature */
+	if(instructions[inst_read].changes & CHANGE_EXTRUDE_TEMP) {
+		/* TODO: Set extrusion temp PID target */
+	}
+
+	/* Extruder motor state */
+	if(instructions[inst_read].changes & CHANGE_EXTRUDE_STATE) {
+		/* TODO: Set extruder motor direction pin correctly */
+		/* TODO: Enable/disable extruder motor PWM */
+	}
+
+	/* Dwell */
+	if(instructions[inst_read].changes & CHANGE_DWELL_SECS) {
+		/* TODO: Sleep without triggering timer overflow */
+	}
+
+	/* Get current extruder temperature */
+	if(instructions[inst_read].changes & CHANGE_GET_TEMP) {
+		uart_puts_P("T:");
+		uart_puts(
+	}
+
+	/* Circularly increment read index when done with instruction */
+	inst_read = (inst_read + 1) & INST_BUFFER_MASK;
 }
 
 /* Timer overflow; we missed a compare. */
