@@ -270,12 +270,18 @@ void gcode_parsec(const char c)
 		break;
 
 	default:
+	{
+		static bool got_point = FALSE;
 		if(word_letter == '\0') {
 			word_letter = c;
 		} else if(isdigit(c)) {
 			word_value[word_value_pos++] = c;
+		} else if(!got_point && c == '.') {
+			word_value[word_value_pos++] = c;
+			got_point = TRUE;
 		} else {
 			/* Got a full word, interpret it */
+			got_point = FALSE;
 			char *endptr;
 			gcode_parsew(word_letter, strtod(word_value, &endptr));
 			if(endptr == word_value) {
@@ -286,6 +292,7 @@ void gcode_parsec(const char c)
 		}
 		
 		break;
+	}
 	}
 	
 	index++;
