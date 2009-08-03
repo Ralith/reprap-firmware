@@ -82,7 +82,19 @@ void stepdrive_init(void)
 	/* TODO: Set default extrusion rate/temperature */
 }
 
-/* Timer interval expired */
+/* Main control interrupt */
+static bool stop_x_down = FALSE;
+static bool stop_y_down = FALSE;
+static bool stop_z_down = FALSE;
+#ifdef X_MAX_PIN
+static bool stop_x_up = FALSE;
+#endif
+#ifdef Y_MAX_PIN
+static bool stop_y_up = FALSE;
+#endif
+#ifdef Z_MAX_PIN
+static bool stop_z_up = FALSE;
+#endif
 ISR(TIMER1_COMPA_vect) 
 {
 	if(inst_read == inst_write)
@@ -146,27 +158,21 @@ ISR(TIMER1_OVF_vect)
 ISR(PCINT0_vect) 
 {
 	dig_toggle(1);
-	if(dig_read(X_MIN_PIN) == ENDSTOP_CLOSED
+
+	stop_x_down = dig_read(X_MIN_PIN) == ENDSTOP_CLOSED ? TRUE : FALSE;
 #ifdef X_MAX_PIN
-	   || dig_read(X_MAX_PIN) == ENDSTOP_CLOSED
+	stop_x_up = dig_read(X_MAX_PIN) == ENDSTOP_CLOSED ? TRUE : FALSE;
 #endif
-		) {
-		/* TODO: Halt X motion */
-	}
-	if(dig_read(Y_MIN_PIN) == ENDSTOP_CLOSED
+
+	stop_y_down = dig_read(Y_MIN_PIN) == ENDSTOP_CLOSED ? TRUE : FALSE;
 #ifdef Y_MAX_PIN
-	   || dig_read(Y_MAX_PIN) == ENDSTOP_CLOSED
+	stop_y_up = dig_read(Y_MAX_PIN) == ENDSTOP_CLOSED ? TRUE : FALSE;
 #endif
-		) {
-		/* TODO: Halt Y motion */
-	}
-	if(dig_read(Z_MIN_PIN) == ENDSTOP_CLOSED
+
+	stop_z_down = dig_read(Z_MIN_PIN) == ENDSTOP_CLOSED ? TRUE : FALSE;
 #ifdef Z_MAX_PIN
-	   || dig_read(Z_MAX_PIN) == ENDSTOP_CLOSED
+	stop_z_up = dig_read(Z_MAX_PIN) == ENDSTOP_CLOSED ? TRUE : FALSE;
 #endif
-		) {
-		/* TODO: Halt Z motion */
-	}
 }
 
 ISR(PCINT1_vect, ISR_ALIASOF(PCINT0_vect));
