@@ -9,6 +9,8 @@
 #include "util.h"
 #include "config.h"
 
+#define FLT_EPSILON 0.01
+
 void stepdrive_init(void)
 {
 	/* Configure and when necessary initialize stepper I/O */
@@ -40,11 +42,11 @@ void stepdrive_init(void)
 	dig_write(Z_ENABLE_PIN, STEPPER_ENABLE_OFF);
 
 	/* Configure control timer */
-	TCCR1B |= _BV(CS01) | _BV(CS00) | /* Clock timer at F_CPU/64 */
+	TCCR1B |= _BV(CS01) | /* Clock timer at F_CPU/8 */
 		_BV(WGM12);					/* Clear on Timer Compare mode */
 	/* TODO: Consider setting TOIE1 (overflow interrupt) */
 	TIMSK1 |= _BV(OCIE1A) | _BV(TOIE1);			/* Enable CTC interrupt */
-	OCR1A = 25000;				/* 100ms */
+	OCR1A = 20;				/* 10us */
 
 	dig_mode(1, OUTPUT);
 
@@ -83,6 +85,7 @@ void stepdrive_init(void)
 }
 
 /* Main control interrupt */
+/* TODO: Use this exclusively for motion control */
 static bool stop_x_down = FALSE;
 static bool stop_y_down = FALSE;
 static bool stop_z_down = FALSE;
@@ -97,54 +100,93 @@ static bool stop_z_up = FALSE;
 #endif
 ISR(TIMER1_COMPA_vect) 
 {
-	if(inst_read == inst_write)
-	{
-		/* No instructions waiting */
-		return;
+	static float to_x = 0, to_y = 0, to_z = 0;
+	static bool need_inst = TRUE;
+
+	if(need_inst) {
+		/* Read instruction */
+		if(inst_read == inst_write)
+		{
+			/* No instructions waiting */
+			return;
+		}
+
+		/* Interpolation type */
+		static uint8_t interp = INTERP_LINEAR;
+		if(instructions[inst_read].changes & CHANGE_INTERP) {
+			interp = instructions[inst_read].interp;
+		}
+
+		/* Movement speed */
+		static float feedrate = DEFAULT_FEEDRATE;
+		if(instructions[inst_read].changes & CHANGE_FEEDRATE) {
+			feedrate = instructions[inst_read].feedrate;
+		}
+
+		/* Extrusion rate */
+		if(instructions[inst_read].changes & CHANGE_EXTRUDE_RATE) {
+			/* TODO: Set extruder motor PWM */
+		}
+
+		/* Extrusion temperature */
+		if(instructions[inst_read].changes & CHANGE_EXTRUDE_TEMP) {
+			/* TODO: Set extrusion temp PID target */
+		}
+
+		/* Extruder motor state */
+		if(instructions[inst_read].changes & CHANGE_EXTRUDE_STATE) {
+			/* TODO: Set extruder motor direction pin correctly */
+			/* TODO: Enable/disable extruder motor PWM */
+		}
+
+		/* Dwell */
+		if(instructions[inst_read].changes & CHANGE_DWELL_SECS) {
+			/* TODO: Sleep without triggering timer overflow */
+		}
+
+		/* Get current extruder temperature */
+		if(instructions[inst_read].changes & CHANGE_GET_TEMP) {
+			uart_puts_P("T:");
+			/* TODO: Read and print temp */
+			uart_puts_P("\r\n");
+		}
+
+		if(instructions[inst_read].changes & CHANGE_X) {
+			to_x += instructions[inst_read].x;
+		}
+		if(instructions[inst_read].changes & CHANGE_Y) {
+			to_y += instructions[inst_read].y;
+		}
+		if(instructions[inst_read].changes & CHANGE_Z) {
+			to_z += instructions[inst_read].z;
+		}
+
+		/* Done reading instruction */
+		need_inst = FALSE;
 	}
 
-	/* Interpolation type */
-	static uint8_t interp = INTERP_LINEAR;
-	if(instructions[inst_read].changes & CHANGE_INTERP) {
-		interp = instructions[inst_read].interp;
-	}
+	switch(interp) {
+	case INTERP_RAPID:
+		/* TODO */
+		break;
+		
+	case INTERP_LINEAR:
+		/* TODO */
+		break;
 
-	/* Movement speed */
-	static float feedrate = DEFAULT_FEEDRATE;
-	if(instructions[inst_read].changes & CHANGE_FEEDRATE) {
-		feedrate = instructions[inst_read].feedrate;
-	}
-
-	/* Extrusion rate */
-	if(instructions[inst_read].changes & CHANGE_EXTRUDE_RATE) {
-		/* TODO: Set extruder motor PWM */
-	}
-
-	/* Extrusion temperature */
-	if(instructions[inst_read].changes & CHANGE_EXTRUDE_TEMP) {
-		/* TODO: Set extrusion temp PID target */
-	}
-
-	/* Extruder motor state */
-	if(instructions[inst_read].changes & CHANGE_EXTRUDE_STATE) {
-		/* TODO: Set extruder motor direction pin correctly */
-		/* TODO: Enable/disable extruder motor PWM */
-	}
-
-	/* Dwell */
-	if(instructions[inst_read].changes & CHANGE_DWELL_SECS) {
-		/* TODO: Sleep without triggering timer overflow */
-	}
-
-	/* Get current extruder temperature */
-	if(instructions[inst_read].changes & CHANGE_GET_TEMP) {
-		uart_puts_P("T:");
-		/* TODO: Read and print temp */
-		uart_puts_P("\r\n");
+	case INTERP_ARC_CW:
+		/* TODO */
+		break;
+		
+	case INTERP_ARC_CCW:
+		/* TODO */
+		break;
 	}
 
 	/* Circularly increment read index when done with instruction */
-	inst_read = (inst_read + 1) & INST_BUFFER_MASK;
+	if(need_inst) {
+		inst_read = (inst_read + 1) & INST_BUFFER_MASK;
+	}
 }
 
 /* Timer overflow; we missed a compare. */

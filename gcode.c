@@ -75,8 +75,7 @@ void gcode_parsew(const char letter, const float value)
 			break;
 
 		case 92:
-			instructions[inst_write].interp = INTERP_OFFSET;
-			instructions[inst_write].changes |= CHANGE_INTERP;
+			/* TODO: Set current offset */
 			break;
 
 		default:
