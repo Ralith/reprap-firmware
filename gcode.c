@@ -13,7 +13,7 @@
 
 #define TO_APPROX_UBYTE(x) ((uint8_t)(x + 0.1))
 #define MAYBE_IN(x) (inches ? 25.4 * x : x)
-#define MAYBE_REL(name, x) (relative ? x + name ## _last : x)
+#define MAYBE_REL(name, x) (relative ? x : x - name ## _last)
 #define CONVERT(name, x) MAYBE_REL(name, MAYBE_IN(x))
 
 /* Circular buffer of instructions to execute */

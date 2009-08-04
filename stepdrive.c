@@ -85,7 +85,7 @@ void stepdrive_init(void)
 }
 
 /* Main control interrupt */
-/* TODO: Use this exclusively for motion control */
+/* TODO: Use this interrupt exclusively for motion control */
 static bool stop_x_down = FALSE;
 static bool stop_y_down = FALSE;
 static bool stop_z_down = FALSE;
@@ -152,13 +152,13 @@ ISR(TIMER1_COMPA_vect)
 		}
 
 		if(instructions[inst_read].changes & CHANGE_X) {
-			to_x += instructions[inst_read].x;
+			to_x = instructions[inst_read].x;
 		}
 		if(instructions[inst_read].changes & CHANGE_Y) {
-			to_y += instructions[inst_read].y;
+			to_y = instructions[inst_read].y;
 		}
 		if(instructions[inst_read].changes & CHANGE_Z) {
-			to_z += instructions[inst_read].z;
+			to_z = instructions[inst_read].z;
 		}
 
 		/* Done reading instruction */
