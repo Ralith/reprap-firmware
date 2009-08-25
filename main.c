@@ -11,6 +11,13 @@
 
 #define UART_BAUD_RATE 19200
 
+#ifdef DEBUG_LED_PIN
+#define ERROR(msg) uart_puts_P("ERROR: " msg "\r\n"); dig_write(DEBUG_LED_PIN, LOW);
+#else
+#define ERROR(msg) uart_puts_P("ERROR: " msg "\r\n");
+#endif
+	
+
 int main(void)
 {
 	/* Initialize stepper control */
@@ -33,15 +40,15 @@ int main(void)
 		recv = uart_getc();
 		switch(recv >> 8) {
 		case UART_FRAME_ERROR >> 8:
-			uart_puts_P("ERROR: FRAME ERROR. Corrupted or misconfigured transmission\r\n");
+			ERROR("FRAME ERROR. Bad transmission or busy controller");
 			break;
 			
 		case UART_OVERRUN_ERROR >> 8:
-			uart_puts_P("ERROR: OVERRUN. Receiving data too quickly\r\n");
+			ERROR("OVERRUN. Receiving data too quickly");
 			break;
 			
 		case UART_BUFFER_OVERFLOW >> 8:
-			uart_puts_P("ERROR: BUFFER OVERFLOW. Not parsing fast enough\r\n");
+			ERROR("BUFFER OVERFLOW. Not parsing fast enough");
 			break;
 
 		case UART_NO_DATA >> 8:
@@ -60,12 +67,12 @@ int main(void)
 				break;
 
 			case GCODE_INVALID_WORD:
-				uart_puts_P("WARNING: INVALID GCODE WORD\r\n");
+				ERROR("INVALID GCODE WORD");
 				break;
 
 			default:
 				if(result < 0) {
-					uart_puts_P("WARNING: ERROR DURING PARSE\r\n");
+					ERROR("ERROR DURING PARSE");
 				}
 				break;
 			}
