@@ -55,6 +55,12 @@ typedef struct inst
 	float dwell_secs;
 } inst_t;
 
+/* Return values of gcode parser funcs. <0 indicates an error*/
+#define GCODE_BLOCK_COMPLETE 2
+#define GCODE_WORD_COMPLETE 1
+#define GCODE_SUCCESS 0
+#define GCODE_INVALID_WORD -1
+
 /* Circular buffer of instructions to execute */
 #ifndef INST_BUFFER_LEN
 #define INST_BUFFER_LEN 32
@@ -68,7 +74,7 @@ extern volatile uint8_t inst_read;
 extern volatile uint8_t inst_write;
 
 /* Parses and prepares for execution of the provided null-terminated block. */
-void gcode_parsew(const char letter, const float value);
-void gcode_parcec(const char c);
+int8_t gcode_parsew(const char letter, const float value);
+int8_t gcode_parcec(const char c);
 
 #endif

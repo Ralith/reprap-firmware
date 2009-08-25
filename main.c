@@ -5,6 +5,7 @@
 
 #include "digital.h"
 #include "uart.h"
+#include "gcode.h"
 #include "stepdrive.h"
 #include "config.h"
 
@@ -28,9 +29,27 @@ int main(void)
 #endif
 	uint16_t recv;
 	for(;; recv = uart_getc()) {
-		/* TODO: Handle errors */
+		/* TODO: Handle UART errors */
 		if(recv != UART_NO_DATA) {
-			gcode_parsec(recv);
+			static int8_t result;
+			result = gcode_parsec(recv);
+			switch(result) {
+			case GCODE_BLOCK_COMPLETE:
+				/* Indicate that we're ready for the next block. */
+				/* TODO: Use real hardware or software flow control in addition. */
+				uart_puts_P("ok\r\n");
+				break;
+
+			case GCODE_INVALID_WORD:
+				uart_puts_P("WARNING: INVALID GCODE WORD\r\n");
+				break;
+
+			default:
+				if(result < 0) {
+					uart_puts_P("WARNING: ERROR DURING PARSE\r\n");
+				}
+				break;
+			}
 		}
 	}
 	

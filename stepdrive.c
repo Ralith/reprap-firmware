@@ -102,6 +102,8 @@ ISR(TIMER1_COMPA_vect)
 {
 	static float to_x = 0, to_y = 0, to_z = 0;
 	static bool need_inst = TRUE;
+	static uint8_t interp = INTERP_LINEAR;
+	static float feedrate = DEFAULT_FEEDRATE;
 
 	if(need_inst) {
 		/* Read instruction */
@@ -112,13 +114,11 @@ ISR(TIMER1_COMPA_vect)
 		}
 
 		/* Interpolation type */
-		static uint8_t interp = INTERP_LINEAR;
 		if(instructions[inst_read].changes & CHANGE_INTERP) {
 			interp = instructions[inst_read].interp;
 		}
 
 		/* Movement speed */
-		static float feedrate = DEFAULT_FEEDRATE;
 		if(instructions[inst_read].changes & CHANGE_FEEDRATE) {
 			feedrate = instructions[inst_read].feedrate;
 		}

@@ -13,6 +13,7 @@
 
 #define TO_APPROX_UBYTE(x) ((uint8_t)(x + 0.1))
 #define MAYBE_IN(x) (inches ? 25.4 * x : x)
+/* TODO: Update ..._last so this doesn't break */
 #define MAYBE_REL(name, x) (relative ? x : x - name ## _last)
 #define CONVERT(name, x) MAYBE_REL(name, MAYBE_IN(x))
 
@@ -28,7 +29,7 @@ void gcode_init()
 	instructions[inst_write].changes = 0;
 }
 
-void gcode_parsew(const char letter, const float value) 
+int8_t gcode_parsew(const char letter, const float value) 
 {
 	/* Cross-call state tracking */
 	/* Used to convert input to a consistent state */
@@ -202,13 +203,14 @@ void gcode_parsew(const char letter, const float value)
 			
 	default:
 	unsupported:
-		/* TODO: Abort on unsupported gcode */
+		return GCODE_INVALID_WORD;
 		break;
 	}
+	return GCODE_SUCCESS;
 }
 
 /* Parse a single character */
-void gcode_parsec(const char c) 
+int8_t gcode_parsec(const char c) 
 {
 	/* Cross-call state tracking */
 	static char word_letter = '\0';
@@ -224,7 +226,7 @@ void gcode_parsec(const char c)
 			/* Block over, stop ignoring */
 			ignore_block = FALSE;
 		}
-		return;
+		return GCODE_SUCCESS;
 	}
 
 	switch(c) {
@@ -233,7 +235,8 @@ void gcode_parsec(const char c)
 			ignore_block = TRUE;
 			break;
 		} else {
-			/* TODO: Error */
+			ignore_block = TRUE;
+			return GCODE_INVALID_WORD;
 		}
 		break;
 		
@@ -242,9 +245,12 @@ void gcode_parsec(const char c)
 		/* Ignore whitespace */
 		break;
 
+	case ';':
+		/* Skip remainder of block and parse what we have so far.
+		 * Note absence of break. */
+		ignore_block = TRUE;
 	case '\r':
 	case '\n':
-	case ';':
 		if(index != 0) { /* Block complete */
 			/* Increment write index */
 			uint8_t nextwrite = (inst_write + 1) & INST_BUFFER_MASK;
@@ -259,12 +265,10 @@ void gcode_parsec(const char c)
 			word_letter = '\0';
 			word_value_pos = 0;
 			index = 0;
-			/* TODO: Use real hardware or software flow control */
-			uart_puts_P("ok\r\n");
-			return;
+			return GCODE_BLOCK_COMPLETE;
 		} else {
 			/* Don't let index be incremented for empty lines */
-			return;
+			return GCODE_SUCCESS;
 		}
 		break;
 
@@ -281,13 +285,18 @@ void gcode_parsec(const char c)
 		} else {
 			/* Got a full word, interpret it */
 			got_point = FALSE;
-			char *endptr;
-			gcode_parsew(word_letter, strtod(word_value, &endptr));
-			if(endptr == word_value) {
-				/* TODO: Error */
-			}
+			static char *endptr;
+			static int8_t result;
+			result = gcode_parsew(word_letter, strtod(word_value, &endptr));
+			/* Reset parsing state for next word. */
 			word_value_pos = 0;
 			word_letter = c;
+			/* If we failed to parse a number or the word parsing failed... */
+			if(endptr == word_value || result < 0) {
+				/* ...let the caller know. */
+				return GCODE_INVALID_WORD;
+			}
+			return GCODE_WORD_COMPLETE;
 		}
 		
 		break;
@@ -295,4 +304,5 @@ void gcode_parsec(const char c)
 	}
 	
 	index++;
+	return GCODE_SUCCESS;
 }
