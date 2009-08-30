@@ -75,6 +75,6 @@ extern volatile uint8_t inst_write;
 
 /* Parses and prepares for execution of the provided null-terminated block. */
 int8_t gcode_parsew(const char letter, const float value);
-int8_t gcode_parcec(const char c);
+int8_t gcode_parsec(const char c);
 
 #endif
