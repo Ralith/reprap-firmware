@@ -15,15 +15,13 @@ typedef enum digstate {
 	HIGH = 1
 } digstate_t;
 
-/* PORT[A-D] are used by avr-libc to refer to the corresponding
- * control registers */
-typedef enum port {
-	INVALID_PORT,
-	_PORTA,
-	_PORTB,
-	_PORTC,
-	_PORTD
-} port_t;
+typedef enum portid {
+	PID_INVALID,
+	PID_A,
+	PID_B,
+	PID_C,
+	PID_D
+} portid_t;
 
 /* See datasheet Figure 1-1 */
 #define PIN_MIN 1
