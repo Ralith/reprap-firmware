@@ -201,19 +201,19 @@ ISR(PCINT0_vect)
 {
 	dig_toggle(1);
 
-	stop_x_down = dig_read(X_MIN_PIN) == ENDSTOP_CLOSED ? TRUE : FALSE;
+	stop_x_down = dig_read(X_MIN_PIN) == ENDSTOP_CLOSED;
 #ifdef X_MAX_PIN
-	stop_x_up = dig_read(X_MAX_PIN) == ENDSTOP_CLOSED ? TRUE : FALSE;
+	stop_x_up = dig_read(X_MAX_PIN) == ENDSTOP_CLOSED;
 #endif
 
-	stop_y_down = dig_read(Y_MIN_PIN) == ENDSTOP_CLOSED ? TRUE : FALSE;
+	stop_y_down = dig_read(Y_MIN_PIN) == ENDSTOP_CLOSED;
 #ifdef Y_MAX_PIN
-	stop_y_up = dig_read(Y_MAX_PIN) == ENDSTOP_CLOSED ? TRUE : FALSE;
+	stop_y_up = dig_read(Y_MAX_PIN) == ENDSTOP_CLOSED;
 #endif
 
-	stop_z_down = dig_read(Z_MIN_PIN) == ENDSTOP_CLOSED ? TRUE : FALSE;
+	stop_z_down = dig_read(Z_MIN_PIN) == ENDSTOP_CLOSED;
 #ifdef Z_MAX_PIN
-	stop_z_up = dig_read(Z_MAX_PIN) == ENDSTOP_CLOSED ? TRUE : FALSE;
+	stop_z_up = dig_read(Z_MAX_PIN) == ENDSTOP_CLOSED;
 #endif
 }
 
