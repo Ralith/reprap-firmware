@@ -13,7 +13,7 @@
 
 void stepdrive_init(void)
 {
-	/* Configure and when necessary initialize stepper I/O */
+	/* Configure and where necessary initialize stepper I/O */
 	dig_mode(X_STEP_PIN, OUTPUT);
 	dig_mode(X_DIR_PIN, OUTPUT);
 	dig_mode(X_ENABLE_PIN, OUTPUT);
@@ -44,9 +44,8 @@ void stepdrive_init(void)
 	/* Configure control timer */
 	TCCR1B |= _BV(CS01) | /* Clock timer at F_CPU/8 */
 		_BV(WGM12);					/* Clear on Timer Compare mode */
-	/* TODO: Consider setting TOIE1 (overflow interrupt) */
 	TIMSK1 |= _BV(OCIE1A) | _BV(TOIE1);			/* Enable CTC interrupt */
-	OCR1A = 20;				/* 10us */
+	OCR1A = 20;				/* Timer executes every 10us */
 
 	dig_mode(1, OUTPUT);
 
@@ -192,11 +191,10 @@ ISR(TIMER1_COMPA_vect)
 /* Timer overflow; we missed a compare. */
 ISR(TIMER1_OVF_vect) 
 {
-	uart_puts_P("OVERFLOW");
+	uart_puts_P("WARNING: POSSIBLE MISSED STEP");
 }
 
 /* Pin change */
-/* TODO: Extruder temperature PID */
 ISR(PCINT0_vect) 
 {
 	dig_toggle(1);
