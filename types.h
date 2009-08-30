@@ -15,6 +15,16 @@ typedef enum digstate {
 	HIGH = 1
 } digstate_t;
 
+/* PORT[A-D] are used by avr-libc to refer to the corresponding
+ * control registers */
+typedef enum port {
+	INVALID_PORT,
+	_PORTA,
+	_PORTB,
+	_PORTC,
+	_PORTD
+} port_t;
+
 /* See datasheet Figure 1-1 */
 #define PIN_MIN 1
 #define PIN_PORTB_MIN PIN_MIN
@@ -26,10 +36,9 @@ typedef enum digstate {
 #define PIN_PORTA_MIN 33
 #define PIN_PORTA_MAX 40
 
+/* Pins are identified by physical numbering (e.g. 1-40 on an
+ * ATMega644p (Sanguino)) */
 typedef uint8_t pin_t;
-
-typedef int port_t;
-typedef int ddr_t;
 
 #define TRUE 1
 #define FALSE 0
