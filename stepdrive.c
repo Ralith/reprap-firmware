@@ -197,8 +197,6 @@ ISR(TIMER1_OVF_vect)
 /* Pin change */
 ISR(PCINT0_vect) 
 {
-	dig_toggle(1);
-
 	stop_x_down = dig_read(X_MIN_PIN) == ENDSTOP_CLOSED;
 #ifdef X_MAX_PIN
 	stop_x_up = dig_read(X_MAX_PIN) == ENDSTOP_CLOSED;

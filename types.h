@@ -16,7 +16,7 @@ typedef enum digstate {
 } digstate_t;
 
 typedef enum portid {
-	PID_INVALID,
+	PID_INVALID = 0,
 	PID_A,
 	PID_B,
 	PID_C,
