@@ -17,8 +17,6 @@ inline bool pregset(volatile uint8_t *a, volatile uint8_t *b, volatile uint8_t *
 	uint8_t offset = pinoffset(pin, port);
 	switch(port) {
 	case PID_A:
-		/* PORTA is backwards for some reason, so we have to swap 7
-		 * 7 with 0, 6 with 1, etc. */
 		BSET(*a, offset, state);
 		break;
 

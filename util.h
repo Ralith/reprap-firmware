@@ -37,6 +37,8 @@ inline uint8_t pinoffset(pin_t pin, portid_t port) {
 
 	switch(port) {
 	case PID_A:
+		/* PORTA is backwards for some reason, so we have to swap 7
+		 * 7 with 0, 6 with 1, etc. */
 		return 7 - (pin - PIN_PORTA_MIN);
 
 	case PID_B:
