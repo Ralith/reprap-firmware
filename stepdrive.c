@@ -8,6 +8,7 @@
 #include "gcode.h"
 #include "util.h"
 #include "config.h"
+#include "line.h"
 
 #define FLT_EPSILON 0.01
 
@@ -100,11 +101,26 @@ static bool stop_z_up = FALSE;
 ISR(TIMER1_COMPA_vect) 
 {
 	static float to_x = 0, to_y = 0, to_z = 0;
+	static int to[AXES];
+	static int current[AXES];
+	static int next[AXES];
+	static int from[AXES];
 	static bool need_inst = TRUE;
 	static uint8_t interp = INTERP_LINEAR;
 	static float feedrate = DEFAULT_FEEDRATE;
+	static struct line_data this_line;
+	int i;
+	static int *vars[AXES];
 
 	if(need_inst) {
+
+		for(i=0;i<AXES;i++) { /* Not sure if memcpy will unroll off the top of my head
+				       * Written as a loop to allow more axes
+				       * Some other stuff to do anyways. */
+			from[i]=current[i];
+			vars[i]=&(next[i]);
+		}
+			
 		/* Read instruction */
 		if(inst_read == inst_write)
 		{
@@ -140,7 +156,11 @@ ISR(TIMER1_COMPA_vect)
 
 		/* Dwell */
 		if(instructions[inst_read].changes & CHANGE_DWELL_SECS) {
-			/* TODO: Sleep without triggering timer overflow */
+			/* TODO: Sleep without triggering timer overflow
+			 * This also needs to not hold us in the timer interrupt -
+			 * perhaps change the rate of the timer interrupt to 
+			 * something constant and then just count ticks before 
+			 * declaring the block done. */
 		}
 
 		/* Get current extruder temperature */
@@ -151,14 +171,20 @@ ISR(TIMER1_COMPA_vect)
 		}
 
 		if(instructions[inst_read].changes & CHANGE_X) {
-			to_x = instructions[inst_read].x;
+			to[0] = instructions[inst_read].x;
 		}
 		if(instructions[inst_read].changes & CHANGE_Y) {
-			to_y = instructions[inst_read].y;
+			to[1] = instructions[inst_read].y;
 		}
 		if(instructions[inst_read].changes & CHANGE_Z) {
-			to_z = instructions[inst_read].z;
+			to[2] = instructions[inst_read].z;
 		}
+
+		/* Prepping the line should probably be done asynchronous to the tick timer -
+		 * perhaps check need_inst at the end of the timer, and switch between two
+		 * line_data structs, so that we prep the next line while running the previous one. */
+
+		line_init(&this_line, from, to, vars);
 
 		/* Done reading instruction */
 		need_inst = FALSE;
@@ -170,7 +196,20 @@ ISR(TIMER1_COMPA_vect)
 		break;
 		
 	case INTERP_LINEAR:
-		/* TODO */
+		need_inst=line_tick(&this_line);
+
+		for(i=0;i<AXES;i++) {
+			/* This seems awkward, but I'm not sure that it'd be any better
+			 * making line_tick directly return step and dir, given that it
+			 * needs to track the position anyways. */
+			int tick=current[i]-next[i];
+			/* TODO: Send to steppers. 
+			 * dir = tick > 0
+			 * step = tick != 0 */
+			/* ALTERNATE: If directly controlling steppers,
+			 * calculate the next configuration of coils directly with mod and bitshift. */
+			current[i]=next[i];
+		}
 		break;
 
 	case INTERP_ARC_CW:
