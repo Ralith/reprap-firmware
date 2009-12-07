@@ -183,18 +183,21 @@ ISR(TIMER1_COMPA_vect)
 		/* Prepping the line should probably be done asynchronous to the tick timer -
 		 * perhaps check need_inst at the end of the timer, and switch between two
 		 * line_data structs, so that we prep the next line while running the previous one. */
-
-		line_init(&this_line, from, to, vars);
-
+		switch(interp){
+		case INTERP_RAPID:
+			line_init(&this_line, from, to, vars);
+			/* TODO: Set the timer such that a motor stepping every tick will move at a sane
+			 * maximum rate. */
+		case INTERP_LINEAR:
+			line_init(&this_line, from, to, vars);
+			/* TODO: Calculate feedrate and set the timer appropriately. */
+		}
 		/* Done reading instruction */
 		need_inst = FALSE;
 	}
 
 	switch(interp) {
-	case INTERP_RAPID:
-		/* TODO */
-		break;
-		
+	case INTERP_RAPID: /* Rapid can be reasonably implemented as setting the feed to whatever will max out the stepper */
 	case INTERP_LINEAR:
 		need_inst=line_tick(&this_line);
 
