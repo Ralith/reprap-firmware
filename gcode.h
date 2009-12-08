@@ -8,7 +8,7 @@
 #include "config.h"
 
 /* Values correspond to G/M codes */
-typedef enum interp
+typedef enum
 {
 	INTERP_RAPID = 0,
 	INTERP_LINEAR = 1,
@@ -17,14 +17,14 @@ typedef enum interp
 	INTERP_OFFSET				/* Not strictly an interpolation, but related */
 } interp_t;
 
-typedef enum extrude_state
+typedef enum
 {
 	EX_ON = 101,
 	EX_REVERSE = 102,
 	EX_OFF = 103,
 } extrude_state_t;
 
-typedef enum inst_change
+typedef enum
 {
 	CHANGE_INTERP = BV(0),
 	CHANGE_POSITION = BV(1),
@@ -38,7 +38,7 @@ typedef enum inst_change
 } inst_change_t;
 
 /* Instruction; represents one parsed gcode block */
-typedef struct inst 
+typedef struct
 {
 	uint16_t changes;
 	

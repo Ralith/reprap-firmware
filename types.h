@@ -5,17 +5,17 @@
 
 #include <stdint.h>
 
-typedef enum digmode {
+typedef enum {
 	INPUT = 0,
 	OUTPUT = 1
 } digmode_t;
 
-typedef enum digstate {
+typedef enum {
 	LOW = 0,
 	HIGH = 1
 } digstate_t;
 
-typedef enum portid {
+typedef enum {
 	PID_INVALID = 0,
 	PID_A,
 	PID_B,
