@@ -53,15 +53,15 @@ void stepdrive_init(void)
 	/* Establish pin change interrupts for endstops */
 	const uint8_t endstops[] = {X_MIN_PIN, Y_MIN_PIN, Z_MIN_PIN,
 #ifdef X_MAX_PIN
-							  X_MAX_PIN,
+								X_MAX_PIN,
 #endif
 #ifdef Y_MAX_PIN
-							  Y_MAX_PIN,
+								Y_MAX_PIN,
 #endif
 #ifdef Z_MAX_PIN
-							  Z_MAX_PIN,
+								Z_MAX_PIN,
 #endif
-							  0};
+								0};
 	uint8_t i;
 	for(i = 0; endstops[i] != 0; i++) {
 		if(endstops[i] <= PIN_PORTB_MAX) {
@@ -115,8 +115,8 @@ ISR(TIMER1_COMPA_vect)
 	if(need_inst) {
 
 		for(i=0;i<AXES;i++) { /* Not sure if memcpy will unroll off the top of my head
-				       * Written as a loop to allow more axes
-				       * Some other stuff to do anyways. */
+							   * Written as a loop to allow more axes
+							   * Some other stuff to do anyways. */
 			from[i]=current[i];
 			vars[i]=&(next[i]);
 		}
