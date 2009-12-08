@@ -63,7 +63,7 @@ void stepdrive_init(void)
 	dig_mode(1, OUTPUT);
 
 	/* Establish pin change interrupts for endstops */
-	const uint8_t endstops[] = {
+	const uint8_t endstop_pins[] = {
 #ifdef X_MIN_PIN
 		X_MIN_PIN,
 #endif
@@ -83,21 +83,21 @@ void stepdrive_init(void)
 		Z_MAX_PIN,
 #endif
 		0};
-	for(i = 0; endstops[i] != 0; i++) {
-		if(endstops[i] <= PIN_PORTB_MAX) {
+	for(i = 0; endstop_pins[i] != 0; i++) {
+		if(endstop_pins[i] <= PIN_PORTB_MAX) {
 			BSET(PCICR, PCIE1, 1);
-			BSET(PCMSK1, endstops[i] - PIN_PORTB_MIN, 1);
-		} else if(PIN_PORTD_MIN <= endstops[i] && endstops[i] <= PIN_PORTD_MAX) {
+			BSET(PCMSK1, endstop_pins[i] - PIN_PORTB_MIN, 1);
+		} else if(PIN_PORTD_MIN <= endstop_pins[i] && endstop_pins[i] <= PIN_PORTD_MAX) {
 			BSET(PCICR, PCIE3, 1);
-			BSET(PCMSK3, endstops[i] - PIN_PORTD_MIN, 1);
-		} else if(endstops[i] <= PIN_PORTC_MAX) { /* PORTC begins at PIN_PORTD_MAX + 1 */
+			BSET(PCMSK3, endstop_pins[i] - PIN_PORTD_MIN, 1);
+		} else if(endstop_pins[i] <= PIN_PORTC_MAX) { /* PORTC begins at PIN_PORTD_MAX + 1 */
 			BSET(PCICR, PCIE2, 1);
-			BSET(PCMSK2, endstops[i] - PIN_PORTC_MIN, 1);
-		} else if (PIN_PORTA_MIN <= endstops[i] && endstops[i] <= PIN_PORTA_MAX) {
+			BSET(PCMSK2, endstop_pins[i] - PIN_PORTC_MIN, 1);
+		} else if (PIN_PORTA_MIN <= endstop_pins[i] && endstop_pins[i] <= PIN_PORTA_MAX) {
 			/* PORTA is backwards for some reason, so we have to swap 7
 			 * 7 with 0, 6 with 1, etc. */
 			BSET(PCICR, PCIE0, 1);
-			BSET(PCMSK0, (7 - (endstops[i] - PIN_PORTA_MIN)), 1);
+			BSET(PCMSK0, (7 - (endstop_pins[i] - PIN_PORTA_MIN)), 1);
 		}
 	}
 
