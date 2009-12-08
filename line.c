@@ -1,12 +1,12 @@
 #include "line.h"
 
 
-void line_init(struct line_data *d, int *from, int *to, int **vars) {
-	int deltas[AXES];
-	int dirs[AXES];
-	int i;
-	int max_delta=0;
-	int max_delta_index;
+void line_init(struct line_data *d, int32_t *from, int32_t *to, int32_t **vars) {
+	int32_t deltas[AXES];
+	int8_t dirs[AXES];
+	uint8_t i;
+	int32_t max_delta=0;
+	uint8_t max_delta_index;
 //	d->distance_squared=0; //This will 
 	for(i=0;i<AXES;i++) {  /*Compute travel and find the axis with the most travel*/
 		deltas[i]=from[i]<to[i]?to[i]-from[i]:from[i]-to[i];
@@ -43,7 +43,7 @@ void line_init(struct line_data *d, int *from, int *to, int **vars) {
 
 int line_tick(struct line_data *d) {
 	(*(d->x))+=d->xstep;
-	int i;
+	uint8_t i;
 	for(i=0; i<OTHER_DIRS; i++) {
 		d->errors[i]-=d->deltay[i];
 		if(d->errors[i]<0) {

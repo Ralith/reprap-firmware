@@ -3,15 +3,15 @@
 #define OTHER_DIRS (AXES-1)
 
 struct line_data {
-	int *x;
-	int *y[OTHER_DIRS];
-	int deltax;
-	int xstep;
-	int x_end;
-	int deltay[OTHER_DIRS];
-	int errors[OTHER_DIRS];
-	int ystep[OTHER_DIRS];
-	int distance_squared;
+	int32_t *x;
+	int32_t *y[OTHER_DIRS];
+	int32_t deltax;
+	int32_t xstep;
+	int32_t x_end;
+	int32_t deltay[OTHER_DIRS];
+	int32_t errors[OTHER_DIRS];
+	int32_t ystep[OTHER_DIRS];
+	int32_t distance_squared;
 };
 
 void line_init(struct line_data *data, int *from, int *to, int **vars);

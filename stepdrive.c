@@ -73,16 +73,16 @@ void stepdrive_init(void)
 /* TODO: Use this interrupt exclusively for motion control */
 ISR(TIMER1_COMPA_vect) 
 {
-	static int to[AXES];
-	static int current[AXES];
-	static int next[AXES];
-	static int from[AXES];
+	static int32_t to[AXES];
+	static int32_t current[AXES];
+	static int32_t next[AXES];
+	static int32_t from[AXES];
 	static bool need_inst = TRUE;
 	static uint8_t interp = INTERP_LINEAR;
 	static float feedrate = DEFAULT_FEEDRATE;
 	static struct line_data this_line;
-	int i;
-	static int *vars[AXES];
+	uint8_t i;
+	static int32_t *vars[AXES];
 
 	if(need_inst) {
 

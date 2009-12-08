@@ -30,7 +30,7 @@
 
 #define DEBUG_LED_PIN 1
 
-#define DEFAULT_FEEDRATE 60		 /* cm/minute */
+#define DEFAULT_FEEDRATE 60		 /* cm/minute; TODO: Re-evaluate unit choice */
 #define DEFAULT_EXTRUDE_RATE 100 /* PWM duty cycle; TODO: Stepstruder support */
 
 #endif
