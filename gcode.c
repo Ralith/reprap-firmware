@@ -12,21 +12,24 @@
 #endif
 
 #define TO_APPROX_UBYTE(x) ((uint8_t)(x + 0.1))
-#define MAYBE_IN(x) (inches ? 25.4 * x : x)
-/* TODO: Update ..._last so this doesn't break */
-#define MAYBE_REL(name, x) (relative ? x : x - name ## _last)
-#define CONVERT(name, x) MAYBE_REL(name, MAYBE_IN(x))
+#define MAYBE_IN(position) (inches ? 25.4 * position : position)
 
 /* Circular buffer of instructions to execute */
 volatile inst_t instructions[INST_BUFFER_LEN];
 volatile uint8_t inst_read;
 volatile uint8_t inst_write;
 
+static int last_position[AXES];
+
 void gcode_init() 
 {
 	inst_write = 0;
 	inst_read = 0;
 	instructions[inst_write].changes = 0;
+	uint8_t i;
+	for(i = 0; i < AXES; i++) {
+		last_position[i] = 0;
+	}
 }
 
 int8_t gcode_parsew(const char letter, const float value) 
@@ -35,7 +38,6 @@ int8_t gcode_parsew(const char letter, const float value)
 	/* Used to convert input to a consistent state */
 	static bool inches = FALSE;
 	static bool relative = FALSE;
-	static float x_last = 0, y_last = 0, z_last = 0;
 
 	/* Used to track params */
 	static uint8_t m_last = 0;
@@ -153,18 +155,13 @@ int8_t gcode_parsew(const char letter, const float value)
 
 	/* TODO: Consider converting these to multiples of resolution */
 	case 'X':
-		instructions[inst_write].x = CONVERT(x, value);
-		instructions[inst_write].changes |= CHANGE_X;
-		break;
-
 	case 'Y':
-		instructions[inst_write].y = CONVERT(y, value);
-		instructions[inst_write].changes |= CHANGE_Y;
-		break;
-
 	case 'Z':
-		instructions[inst_write].z = CONVERT(z, value);
-		instructions[inst_write].changes |= CHANGE_Z;
+		{
+			const uint8_t axis = letter - 'X';
+			instructions[inst_write].position[axis] = relative ? MAYBE_IN(value) + last_position[axis] : MAYBE_IN(value);
+			instructions[inst_write].changes |= CHANGE_POSITION;
+		}
 		break;
 
 	case 'F':

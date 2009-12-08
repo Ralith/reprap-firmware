@@ -1,6 +1,5 @@
+#include "config.h"
 
-
-#define AXES 3
 #define OTHER_DIRS (AXES-1)
 
 struct axis {

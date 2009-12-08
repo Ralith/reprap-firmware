@@ -5,6 +5,7 @@
 
 #include "types.h"
 #include "util.h"
+#include "config.h"
 
 /* Values correspond to G/M codes */
 typedef enum interp
@@ -26,16 +27,14 @@ typedef enum extrude_state
 typedef enum inst_change
 {
 	CHANGE_INTERP = BV(0),
-	CHANGE_X = BV(1),
-	CHANGE_Y = BV(2),
-	CHANGE_Z = BV(3),
-	CHANGE_FEEDRATE = BV(4),
-	CHANGE_RADIUS = BV(5),
-	CHANGE_EXTRUDE_RATE = BV(6),
-	CHANGE_EXTRUDE_TEMP = BV(7),
-	CHANGE_EXTRUDE_STATE = BV(8),
-	CHANGE_DWELL_SECS = BV(9),
-	CHANGE_GET_TEMP = BV(10),
+	CHANGE_POSITION = BV(1),
+	CHANGE_FEEDRATE = BV(2),
+	CHANGE_RADIUS = BV(3),
+	CHANGE_EXTRUDE_RATE = BV(4),
+	CHANGE_EXTRUDE_TEMP = BV(5),
+	CHANGE_EXTRUDE_STATE = BV(6),
+	CHANGE_DWELL_SECS = BV(7),
+	CHANGE_GET_TEMP = BV(8),
 } inst_change_t;
 
 /* Instruction; represents one parsed gcode block */
@@ -44,9 +43,8 @@ typedef struct inst
 	uint16_t changes;
 	
 	uint8_t interp;
-	float x;
-	float y;
-	float z;
+	int16_t position[AXES];
+	/* TODO: Should these be ints as well? */
 	float feedrate;
 	float radius;				/* Center-style arcs are converted */
 	float extrude_rate;

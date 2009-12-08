@@ -100,7 +100,6 @@ static bool stop_z_up = FALSE;
 #endif
 ISR(TIMER1_COMPA_vect) 
 {
-	static float to_x = 0, to_y = 0, to_z = 0;
 	static int to[AXES];
 	static int current[AXES];
 	static int next[AXES];
@@ -170,14 +169,11 @@ ISR(TIMER1_COMPA_vect)
 			uart_puts_P("\r\n");
 		}
 
-		if(instructions[inst_read].changes & CHANGE_X) {
-			to[0] = instructions[inst_read].x;
-		}
-		if(instructions[inst_read].changes & CHANGE_Y) {
-			to[1] = instructions[inst_read].y;
-		}
-		if(instructions[inst_read].changes & CHANGE_Z) {
-			to[2] = instructions[inst_read].z;
+		if(instructions[inst_read].changes & CHANGE_POSITION) {
+			uint8_t i;
+			for(i = 0; i < AXES; i++) {
+				to[i] = instructions[inst_read].position[i];
+			}
 		}
 
 		/* Prepping the line should probably be done asynchronous to the tick timer -
