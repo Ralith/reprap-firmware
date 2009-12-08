@@ -1,11 +1,6 @@
-#include "config.h"
+#include "types.h"
 
 #define OTHER_DIRS (AXES-1)
-
-struct axis {
-	int position;
-	int scale; //Number of ticks to 
-};
 
 struct line_data {
 	int *x;
