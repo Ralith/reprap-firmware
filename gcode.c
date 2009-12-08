@@ -162,7 +162,7 @@ int8_t gcode_parsew(const char letter, const float value)
 		{
 			const uint8_t axis = letter - 'X';
 			/* Convert from real to machine space */
-			const int16_t position = (int)(MAYBE_IN(value) * STEPS_PER_MM[axis]);
+			const int32_t position = (int)(MAYBE_IN(value) * STEPS_PER_MM[axis]);
 			
 			instructions[inst_write].position[axis] = relative ? position + last_position[axis] : position;
 			instructions[inst_write].changes |= CHANGE_POSITION;

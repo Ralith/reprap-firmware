@@ -42,7 +42,7 @@ typedef struct
 	uint16_t changes;
 	
 	uint8_t interp;
-	int16_t position[AXES];
+	int32_t position[AXES];
 	/* TODO: Should these be ints as well? */
 	float feedrate;
 	float radius;				/* Center-style arcs are converted */
