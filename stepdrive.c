@@ -12,13 +12,21 @@
 
 #define FLT_EPSILON 0.01
 
+static uint8_t endstops[2*AXES]; /* [xmin|xmax|ymin|ymax|zmin|zmax|...] */
 void stepdrive_init(void)
 {
+	/* Initialize endstop state */
+	uint8_t i;
+	for(i = 0; i < 2*AXES; i++) {
+		endstops[i] = ENDSTOP_UNDEFINED;
+	}
 	/* Configure and where necessary initialize stepper I/O */
 	dig_mode(X_STEP_PIN, OUTPUT);
 	dig_mode(X_DIR_PIN, OUTPUT);
 	dig_mode(X_ENABLE_PIN, OUTPUT);
+#ifdef X_MIN_PIN
 	dig_mode(X_MIN_PIN, INPUT);
+#endif
 #ifdef X_MAX_PIN
 	dig_mode(X_MAX_PIN, INPUT);
 #endif
@@ -27,7 +35,9 @@ void stepdrive_init(void)
 	dig_mode(Y_STEP_PIN, OUTPUT);
 	dig_mode(Y_DIR_PIN, OUTPUT);
 	dig_mode(Y_ENABLE_PIN, OUTPUT);
+#ifdef Y_MIN_PIN
 	dig_mode(Y_MIN_PIN, INPUT);
+#endif
 #ifdef Y_MAX_PIN
 	dig_mode(Y_MAX_PIN, INPUT);
 #endif
@@ -36,7 +46,9 @@ void stepdrive_init(void)
 	dig_mode(Z_STEP_PIN, OUTPUT);
 	dig_mode(Z_DIR_PIN, OUTPUT);
 	dig_mode(Z_ENABLE_PIN, OUTPUT);
+#ifdef Z_MIN_PIN
 	dig_mode(Z_MIN_PIN, INPUT);
+#endif
 #ifdef Z_MAX_PIN
 	dig_mode(Z_MAX_PIN, INPUT);
 #endif
@@ -51,18 +63,26 @@ void stepdrive_init(void)
 	dig_mode(1, OUTPUT);
 
 	/* Establish pin change interrupts for endstops */
-	const uint8_t endstops[] = {X_MIN_PIN, Y_MIN_PIN, Z_MIN_PIN,
+	const uint8_t endstops[] = {
+#ifdef X_MIN_PIN
+		X_MIN_PIN,
+#endif
 #ifdef X_MAX_PIN
-								X_MAX_PIN,
+		X_MAX_PIN,
+#endif
+#ifdef Y_MIN_PIN
+		Y_MIN_PIN,
 #endif
 #ifdef Y_MAX_PIN
-								Y_MAX_PIN,
+		Y_MAX_PIN,
+#endif
+#ifdef Z_MIN_PIN
+		Z_MIN_PIN,
 #endif
 #ifdef Z_MAX_PIN
-								Z_MAX_PIN,
+		Z_MAX_PIN,
 #endif
-								0};
-	uint8_t i;
+		0};
 	for(i = 0; endstops[i] != 0; i++) {
 		if(endstops[i] <= PIN_PORTB_MAX) {
 			BSET(PCICR, PCIE1, 1);
@@ -86,18 +106,6 @@ void stepdrive_init(void)
 
 /* Main control interrupt */
 /* TODO: Use this interrupt exclusively for motion control */
-static bool stop_x_down = FALSE;
-static bool stop_y_down = FALSE;
-static bool stop_z_down = FALSE;
-#ifdef X_MAX_PIN
-static bool stop_x_up = FALSE;
-#endif
-#ifdef Y_MAX_PIN
-static bool stop_y_up = FALSE;
-#endif
-#ifdef Z_MAX_PIN
-static bool stop_z_up = FALSE;
-#endif
 ISR(TIMER1_COMPA_vect) 
 {
 	static int to[AXES];
@@ -238,19 +246,25 @@ ISR(TIMER1_OVF_vect)
 /* Pin change */
 ISR(PCINT0_vect) 
 {
-	stop_x_down = dig_read(X_MIN_PIN) == ENDSTOP_CLOSED;
+#ifdef X_MIN_PIN
+	endstops[AXIS_X*2] = dig_read(X_MIN_PIN);
+#endif
 #ifdef X_MAX_PIN
-	stop_x_up = dig_read(X_MAX_PIN) == ENDSTOP_CLOSED;
+	endstops[AXIS_X*2+1] = dig_read(X_MAX_PIN);
 #endif
 
-	stop_y_down = dig_read(Y_MIN_PIN) == ENDSTOP_CLOSED;
+#ifdef Y_MIN_PIN
+	endstops[AXIS_Y*2] = dig_read(Y_MIN_PIN);
+#endif
 #ifdef Y_MAX_PIN
-	stop_y_up = dig_read(Y_MAX_PIN) == ENDSTOP_CLOSED;
+	endstops[AXIS_Y*2+1] = dig_read(Y_MAX_PIN);
 #endif
 
-	stop_z_down = dig_read(Z_MIN_PIN) == ENDSTOP_CLOSED;
+#ifdef Z_MIN_PIN
+	endstops[AXIS_Z*2] = dig_read(Z_MIN_PIN);
+#endif
 #ifdef Z_MAX_PIN
-	stop_z_up = dig_read(Z_MAX_PIN) == ENDSTOP_CLOSED;
+	endstops[AXIS_Z*2+1] = dig_read(Z_MAX_PIN);
 #endif
 }
 
