@@ -185,12 +185,15 @@ ISR(TIMER1_COMPA_vect)
 		 * line_data structs, so that we prep the next line while running the previous one. */
 		switch(interp){
 		case INTERP_RAPID:
+		case INTERP_LINEAR:
 			line_init(&this_line, from, to, vars);
 			/* TODO: Set the timer such that a motor stepping every tick will move at a sane
 			 * maximum rate. */
-		case INTERP_LINEAR:
-			line_init(&this_line, from, to, vars);
 			/* TODO: Calculate feedrate and set the timer appropriately. */
+			break;
+			
+		default:
+			break;
 		}
 		/* Done reading instruction */
 		need_inst = FALSE;
