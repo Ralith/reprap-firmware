@@ -14,5 +14,5 @@ struct line_data {
 	int32_t distance_squared;
 };
 
-void line_init(struct line_data *data, int *from, int *to, int **vars);
+void line_init(struct line_data *data, int32_t *from, int32_t *to, int32_t **vars);
 int line_tick(struct line_data *data);
