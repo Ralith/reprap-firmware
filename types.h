@@ -26,7 +26,8 @@ typedef enum {
 typedef enum {
 	AXIS_X = 0,
 	AXIS_Y = 1,
-	AXIS_Z = 2
+	AXIS_Z = 2,
+	AXES
 } axis_t;
 
 /* See datasheet Figure 1-1 */

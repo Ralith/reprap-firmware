@@ -5,7 +5,6 @@
 
 #include "types.h"
 #include "util.h"
-#include "config.h"
 
 /* Values correspond to G/M codes */
 typedef enum

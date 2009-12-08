@@ -12,7 +12,26 @@
 
 #define FLT_EPSILON 0.01
 
+inline void endstop_interrupt(pin_t pin) {
+	if(pin <= PIN_PORTB_MAX) {
+		BSET(PCICR, PCIE1, 1);
+		BSET(PCMSK1, pin - PIN_PORTB_MIN, 1);
+	} else if(PIN_PORTD_MIN <= pin && pin <= PIN_PORTD_MAX) {
+		BSET(PCICR, PCIE3, 1);
+		BSET(PCMSK3, pin - PIN_PORTD_MIN, 1);
+	} else if(pin <= PIN_PORTC_MAX) { /* PORTC begins at PIN_PORTD_MAX + 1 */
+		BSET(PCICR, PCIE2, 1);
+		BSET(PCMSK2, pin - PIN_PORTC_MIN, 1);
+	} else if (PIN_PORTA_MIN <= pin && pin <= PIN_PORTA_MAX) {
+		/* PORTA is backwards for some reason, so we have to swap 7
+		 * 7 with 0, 6 with 1, etc. */
+		BSET(PCICR, PCIE0, 1);
+		BSET(PCMSK0, (7 - (pin - PIN_PORTA_MIN)), 1);
+	}
+}	
+
 static int8_t endstops[2*AXES]; /* [xmin|xmax|ymin|ymax|zmin|zmax|...] */
+#define SET_ENDSTOP(axis, index, state) endstops[2*axis+index] = state
 void stepdrive_init(void)
 {
 	/* Initialize endstop state */
@@ -21,39 +40,25 @@ void stepdrive_init(void)
 		endstops[i] = ENDSTOP_UNDEFINED;
 	}
 	
-	/* Configure and where necessary initialize stepper I/O */
-	dig_mode(X_STEP_PIN, OUTPUT);
-	dig_mode(X_DIR_PIN, OUTPUT);
-	dig_mode(X_ENABLE_PIN, OUTPUT);
-#ifdef X_MIN_PIN
-	dig_mode(X_MIN_PIN, INPUT);
-#endif
-#ifdef X_MAX_PIN
-	dig_mode(X_MAX_PIN, INPUT);
-#endif
-	dig_write(X_ENABLE_PIN, STEPPER_ENABLE_OFF);
+	for(i = 0; i < AXES; i++) {
+		if(STEP_PIN[i]) {
+			/* Configure and initialize stepper state */
+			dig_mode(STEP_PIN[i], OUTPUT);
+			dig_mode(DIR_PIN[i], OUTPUT);
+			dig_mode(ENABLE_PIN[i], OUTPUT);
 
-	dig_mode(Y_STEP_PIN, OUTPUT);
-	dig_mode(Y_DIR_PIN, OUTPUT);
-	dig_mode(Y_ENABLE_PIN, OUTPUT);
-#ifdef Y_MIN_PIN
-	dig_mode(Y_MIN_PIN, INPUT);
-#endif
-#ifdef Y_MAX_PIN
-	dig_mode(Y_MAX_PIN, INPUT);
-#endif
-	dig_write(Y_ENABLE_PIN, STEPPER_ENABLE_OFF);
-
-	dig_mode(Z_STEP_PIN, OUTPUT);
-	dig_mode(Z_DIR_PIN, OUTPUT);
-	dig_mode(Z_ENABLE_PIN, OUTPUT);
-#ifdef Z_MIN_PIN
-	dig_mode(Z_MIN_PIN, INPUT);
-#endif
-#ifdef Z_MAX_PIN
-	dig_mode(Z_MAX_PIN, INPUT);
-#endif
-	dig_write(Z_ENABLE_PIN, STEPPER_ENABLE_OFF);
+			dig_write(ENABLE_PIN[i], STEPPER_ENABLE_OFF);
+		}
+		/* Configure and prepare interrupts on endstops. */
+		if(MIN_PIN[i]) {
+			dig_mode(MIN_PIN[i], INPUT);
+			endstop_interrupt(MIN_PIN[i]);
+		}
+		if(MAX_PIN[i]) {
+			dig_mode(MAX_PIN[i], INPUT);
+			endstop_interrupt(MAX_PIN[i]);
+		}
+	}
 
 	/* Configure control timer */
 	TCCR1B |= _BV(CS01) | /* Clock timer at F_CPU/8 */
@@ -61,48 +66,7 @@ void stepdrive_init(void)
 	TIMSK1 |= _BV(OCIE1A) | _BV(TOIE1);			/* Enable CTC interrupt */
 	OCR1A = 20;				/* Timer executes every 10us */
 
-	dig_mode(1, OUTPUT);
-
-	/* Establish pin change interrupts for endstops */
-	const uint8_t endstop_pins[] = {
-#ifdef X_MIN_PIN
-		X_MIN_PIN,
-#endif
-#ifdef X_MAX_PIN
-		X_MAX_PIN,
-#endif
-#ifdef Y_MIN_PIN
-		Y_MIN_PIN,
-#endif
-#ifdef Y_MAX_PIN
-		Y_MAX_PIN,
-#endif
-#ifdef Z_MIN_PIN
-		Z_MIN_PIN,
-#endif
-#ifdef Z_MAX_PIN
-		Z_MAX_PIN,
-#endif
-		0};
-	for(i = 0; endstop_pins[i] != 0; i++) {
-		if(endstop_pins[i] <= PIN_PORTB_MAX) {
-			BSET(PCICR, PCIE1, 1);
-			BSET(PCMSK1, endstop_pins[i] - PIN_PORTB_MIN, 1);
-		} else if(PIN_PORTD_MIN <= endstop_pins[i] && endstop_pins[i] <= PIN_PORTD_MAX) {
-			BSET(PCICR, PCIE3, 1);
-			BSET(PCMSK3, endstop_pins[i] - PIN_PORTD_MIN, 1);
-		} else if(endstop_pins[i] <= PIN_PORTC_MAX) { /* PORTC begins at PIN_PORTD_MAX + 1 */
-			BSET(PCICR, PCIE2, 1);
-			BSET(PCMSK2, endstop_pins[i] - PIN_PORTC_MIN, 1);
-		} else if (PIN_PORTA_MIN <= endstop_pins[i] && endstop_pins[i] <= PIN_PORTA_MAX) {
-			/* PORTA is backwards for some reason, so we have to swap 7
-			 * 7 with 0, 6 with 1, etc. */
-			BSET(PCICR, PCIE0, 1);
-			BSET(PCMSK0, (7 - (endstop_pins[i] - PIN_PORTA_MIN)), 1);
-		}
-	}
-
-	/* TODO: Set default extrusion rate/temperature */
+	/* TODO: Set default extrusion rate/temperature (sane/zero) */
 }
 
 /* Main control interrupt */
@@ -247,28 +211,18 @@ ISR(TIMER1_OVF_vect)
 /* Pin change */
 ISR(PCINT0_vect) 
 {
-#ifdef X_MIN_PIN
-	endstops[AXIS_X*2] = dig_read(X_MIN_PIN);
-#endif
-#ifdef X_MAX_PIN
-	endstops[AXIS_X*2+1] = dig_read(X_MAX_PIN);
-#endif
-
-#ifdef Y_MIN_PIN
-	endstops[AXIS_Y*2] = dig_read(Y_MIN_PIN);
-#endif
-#ifdef Y_MAX_PIN
-	endstops[AXIS_Y*2+1] = dig_read(Y_MAX_PIN);
-#endif
-
-#ifdef Z_MIN_PIN
-	endstops[AXIS_Z*2] = dig_read(Z_MIN_PIN);
-#endif
-#ifdef Z_MAX_PIN
-	endstops[AXIS_Z*2+1] = dig_read(Z_MAX_PIN);
-#endif
+	uint8_t i;
+	for(i = 0; i < AXES; i++) {
+		if(MIN_PIN[i]) {
+			SET_ENDSTOP(i, 0, dig_read(MIN_PIN[i]));
+		}
+		if(MAX_PIN[i]) {
+			SET_ENDSTOP(i, 1, dig_read(MAX_PIN[i]));
+		}
+	}
 }
 
+/* Bind all pin change interrupts to the above function */
 ISR(PCINT1_vect, ISR_ALIASOF(PCINT0_vect));
 ISR(PCINT2_vect, ISR_ALIASOF(PCINT0_vect));
 ISR(PCINT3_vect, ISR_ALIASOF(PCINT0_vect));
