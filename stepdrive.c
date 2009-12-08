@@ -12,7 +12,7 @@
 
 #define FLT_EPSILON 0.01
 
-static uint8_t endstops[2*AXES]; /* [xmin|xmax|ymin|ymax|zmin|zmax|...] */
+static int8_t endstops[2*AXES]; /* [xmin|xmax|ymin|ymax|zmin|zmax|...] */
 void stepdrive_init(void)
 {
 	/* Initialize endstop state */
@@ -20,6 +20,7 @@ void stepdrive_init(void)
 	for(i = 0; i < 2*AXES; i++) {
 		endstops[i] = ENDSTOP_UNDEFINED;
 	}
+	
 	/* Configure and where necessary initialize stepper I/O */
 	dig_mode(X_STEP_PIN, OUTPUT);
 	dig_mode(X_DIR_PIN, OUTPUT);
