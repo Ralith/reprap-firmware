@@ -5,6 +5,10 @@
 
 #define AXES 3
 
+#define X_STEPS_PER_MM 10.0
+#define Y_STEPS_PER_MM 10.0
+#define Z_STEPS_PER_MM 10.0
+
 #define X_STEP_PIN 6
 #define X_DIR_PIN 5
 #define X_ENABLE_PIN 4

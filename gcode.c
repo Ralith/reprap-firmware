@@ -7,6 +7,8 @@
 
 #include "uart.h"
 
+#include "config.h"
+
 #ifndef NAN
 #error This code requires an implementation with floating point NAN support
 #endif
@@ -159,7 +161,9 @@ int8_t gcode_parsew(const char letter, const float value)
 	case 'Z':
 		{
 			const uint8_t axis = letter - 'X';
-			instructions[inst_write].position[axis] = relative ? MAYBE_IN(value) + last_position[axis] : MAYBE_IN(value);
+			const int16_t position = (int)(MAYBE_IN(value) * ((float[]){X_STEPS_PER_MM, Y_STEPS_PER_MM, Z_STEPS_PER_MM})[axis]);
+			
+			instructions[inst_write].position[axis] = relative ? position + last_position[axis] : position;
 			instructions[inst_write].changes |= CHANGE_POSITION;
 		}
 		break;
