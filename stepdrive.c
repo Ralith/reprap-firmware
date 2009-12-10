@@ -186,7 +186,9 @@ ISR(TIMER1_COMPA_vect)
 	case INTERP_RAPID: /* Rapid can be reasonably implemented as setting the feed to whatever will max out the stepper */
 	case INTERP_LINEAR:
 		if(instructions[inst_read].changes & CHANGE_POSITION) {
-			do_line();
+			/* TODO: Verify that it's appropriate to always move to the
+			 * next instruction after a line finishes. */
+			need_inst = do_line();
 		}
 		break;
 
