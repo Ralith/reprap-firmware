@@ -4,5 +4,5 @@
 
 void adc_init() {
 	/* Enable ADC at sample rate (system clock)/8 */
-	ADCSRA |= (1 << ADEN) | (1 << ADPS0 ) | (1 << ADPS1 );
+	ADCSRA |= BV(ADEN) | BV(ADPS0) | BV(ADPS1);
 }
