@@ -125,7 +125,6 @@ int8_t do_line() {
 ISR(TIMER1_COMPA_vect) 
 {
 	static bool need_inst = TRUE;
-	static uint8_t interp = INTERP_LINEAR;
 	static float feedrate = DEFAULT_FEEDRATE;
 	
 	if(need_inst) {	
@@ -134,11 +133,6 @@ ISR(TIMER1_COMPA_vect)
 		{
 			/* No instructions waiting */
 			return;
-		}
-
-		/* Interpolation type */
-		if(instructions[inst_read].changes & CHANGE_INTERP) {
-			interp = instructions[inst_read].interp;
 		}
 
 		/* Movement speed */
@@ -182,7 +176,7 @@ ISR(TIMER1_COMPA_vect)
 		need_inst = FALSE;
 	}
 
-	switch(interp) {
+	switch(instructions[inst_read].interp) {
 	case INTERP_RAPID: /* Rapid can be reasonably implemented as setting the feed to whatever will max out the stepper */
 	case INTERP_LINEAR:
 		if(instructions[inst_read].changes & CHANGE_POSITION) {
