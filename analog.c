@@ -12,7 +12,8 @@ uint16_t adc_sample(uint8_t channel){
 	uint8_t low_byte, high_byte;
 	ADMUX = channel;
 	ADCSRA |= (1 << ADSC);
-	while((ADCSRA & (1 << ADIF))  == 0){}; //Wait until the adc grab is complete
+	/* Block until the ADC sampling is complete */
+	while((ADCSRA & (1 << ADIF))  == 0){}; 
 	low_byte = ADCL;
 	high_byte = ADCH;
 	ADCSRA |= (1 << ADIF);
