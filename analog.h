@@ -1,0 +1,1 @@
+void adc_init();
