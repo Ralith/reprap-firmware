@@ -69,30 +69,66 @@ void stepdrive_init(void)
 	/* TODO: Set default extrusion rate/temperature (sane/zero) */
 }
 
-/* Main control interrupt */
-/* TODO: Use this interrupt exclusively for motion control */
-ISR(TIMER1_COMPA_vect) 
-{
+int8_t do_line() {
 	static int32_t to[AXES];
 	static int32_t current[AXES];
 	static int32_t next[AXES];
 	static int32_t from[AXES];
-	static bool need_inst = TRUE;
-	static uint8_t interp = INTERP_LINEAR;
-	static float feedrate = DEFAULT_FEEDRATE;
 	static struct line_data this_line;
-	uint8_t i;
+	static int8_t in_line = FALSE;
 	static int32_t *vars[AXES];
 
-	if(need_inst) {
+	uint8_t i;
 
+	if(!in_line) {
+		in_line = TRUE;
+		
 		for(i=0;i<AXES;i++) { /* Not sure if memcpy will unroll off the top of my head
 							   * Written as a loop to allow more axes
 							   * Some other stuff to do anyways. */
 			from[i]=current[i];
 			vars[i]=&(next[i]);
 		}
-			
+
+		for(i = 0; i < AXES; i++) {
+			to[i] = instructions[inst_read].position[i];
+		}
+
+		/* Prepping the line should probably be done asynchronous to the tick timer -
+		 * perhaps check need_inst at the end of the timer, and switch between two
+		 * line_data structs, so that we prep the next line while running the previous one. */
+		line_init(&this_line, from, to, vars);
+		/* TODO: Set the timer such that a motor stepping every tick will move at a sane
+		 * maximum rate. */
+		/* TODO: Calculate feedrate and set the timer appropriately. */	
+	}
+
+	in_line = line_tick(&this_line);
+	for(i = 0; i < AXES; i++) {
+		/* This seems awkward, but I'm not sure that it'd be any better
+		 * making line_tick directly return step and dir, given that it
+		 * needs to track the position anyways. */
+		int tick = current[i]-next[i];
+		/* TODO: Send to steppers. 
+		 * dir = tick > 0
+		 * step = tick != 0 */
+		/* ALTERNATE: If directly controlling steppers,
+		 * calculate the next configuration of coils directly with mod and bitshift. */
+		current[i]=next[i];
+	}
+
+	return in_line;
+}
+
+/* Main control interrupt */
+/* TODO: Use this interrupt exclusively for motion control */
+ISR(TIMER1_COMPA_vect) 
+{
+	static bool need_inst = TRUE;
+	static uint8_t interp = INTERP_LINEAR;
+	static float feedrate = DEFAULT_FEEDRATE;
+	
+	if(need_inst) {	
 		/* Read instruction */
 		if(inst_read == inst_write)
 		{
@@ -142,28 +178,6 @@ ISR(TIMER1_COMPA_vect)
 			uart_puts_P("\r\n");
 		}
 
-		if(instructions[inst_read].changes & CHANGE_POSITION) {
-			uint8_t i;
-			for(i = 0; i < AXES; i++) {
-				to[i] = instructions[inst_read].position[i];
-			}
-		}
-
-		/* Prepping the line should probably be done asynchronous to the tick timer -
-		 * perhaps check need_inst at the end of the timer, and switch between two
-		 * line_data structs, so that we prep the next line while running the previous one. */
-		switch(interp){
-		case INTERP_RAPID:
-		case INTERP_LINEAR:
-			line_init(&this_line, from, to, vars);
-			/* TODO: Set the timer such that a motor stepping every tick will move at a sane
-			 * maximum rate. */
-			/* TODO: Calculate feedrate and set the timer appropriately. */
-			break;
-			
-		default:
-			break;
-		}
 		/* Done reading instruction */
 		need_inst = FALSE;
 	}
@@ -171,19 +185,8 @@ ISR(TIMER1_COMPA_vect)
 	switch(interp) {
 	case INTERP_RAPID: /* Rapid can be reasonably implemented as setting the feed to whatever will max out the stepper */
 	case INTERP_LINEAR:
-		need_inst=line_tick(&this_line);
-
-		for(i=0;i<AXES;i++) {
-			/* This seems awkward, but I'm not sure that it'd be any better
-			 * making line_tick directly return step and dir, given that it
-			 * needs to track the position anyways. */
-			int tick=current[i]-next[i];
-			/* TODO: Send to steppers. 
-			 * dir = tick > 0
-			 * step = tick != 0 */
-			/* ALTERNATE: If directly controlling steppers,
-			 * calculate the next configuration of coils directly with mod and bitshift. */
-			current[i]=next[i];
+		if(instructions[inst_read].changes & CHANGE_POSITION) {
+			do_line();
 		}
 		break;
 
