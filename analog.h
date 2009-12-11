@@ -1,5 +1,3 @@
 #include "types.h"
 
-void adc_init();
-
-uint16_t adc_sample(uint8_t channel);
+bool adc_init(const pin_t pin, const void(*callback)(const uint16_t));
