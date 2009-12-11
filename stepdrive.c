@@ -8,25 +8,36 @@
 #include "gcode.h"
 #include "util.h"
 #include "config.h"
+#include "platform.h"
 #include "line.h"
 
 #define FLT_EPSILON 0.01
 
 inline void endstop_interrupt(pin_t pin) {
-	if(pin <= PIN_PORTB_MAX) {
-		BSET(PCICR, PCIE1, 1);
-		BSET(PCMSK1, pin - PIN_PORTB_MIN, 1);
-	} else if(PIN_PORTD_MIN <= pin && pin <= PIN_PORTD_MAX) {
-		BSET(PCICR, PCIE3, 1);
-		BSET(PCMSK3, pin - PIN_PORTD_MIN, 1);
-	} else if(pin <= PIN_PORTC_MAX) { /* PORTC begins at PIN_PORTD_MAX + 1 */
-		BSET(PCICR, PCIE2, 1);
-		BSET(PCMSK2, pin - PIN_PORTC_MIN, 1);
-	} else if (PIN_PORTA_MIN <= pin && pin <= PIN_PORTA_MAX) {
-		/* PORTA is backwards for some reason, so we have to swap 7
-		 * 7 with 0, 6 with 1, etc. */
+	switch(pin_portid[pin]) {
+	case PID_A:
 		BSET(PCICR, PCIE0, 1);
-		BSET(PCMSK0, (7 - (pin - PIN_PORTA_MIN)), 1);
+		BSET(PCMSK0, pin_offset[pin], 1);
+		break;
+		
+	case PID_B:
+		BSET(PCICR, PCIE1, 1);
+		BSET(PCMSK1, pin_offset[pin], 1);
+		break;
+		
+	case PID_C:
+		BSET(PCICR, PCIE2, 1);
+		BSET(PCMSK2, pin_offset[pin], 1);
+		break;
+		
+	case PID_D:
+		BSET(PCICR, PCIE3, 1);
+		BSET(PCMSK3, pin_offset[pin], 1);
+		break;
+
+	default:
+		/* TODO: Indicate error */
+		break;
 	}
 }	
 
