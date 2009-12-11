@@ -22,7 +22,7 @@ volatile inst_t instructions[INST_BUFFER_LEN];
 volatile uint8_t inst_read;
 volatile uint8_t inst_write;
 
-static int last_position[AXES];
+static int32_t last_position[AXES];
 
 void gcode_init() 
 {
@@ -164,9 +164,12 @@ int8_t gcode_parsew(const char letter, const float value)
 			const uint8_t axis = letter - 'X';
 			/* Convert from real to machine space */
 			const int32_t position = (int)(MAYBE_IN(value) * STEPS_PER_MM[axis]);
-			
-			instructions[inst_write].position[axis] = relative ? position + last_position[axis] : position;
+			if(relative) {
+				position += last_position[axis];
+			}
+			instructions[inst_write].position[axis] = position;
 			instructions[inst_write].changes |= CHANGE_POSITION;
+			last_position[axis] = position;
 		}
 		break;
 
