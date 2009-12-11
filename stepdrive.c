@@ -11,8 +11,6 @@
 #include "platform.h"
 #include "line.h"
 
-#define FLT_EPSILON 0.01
-
 inline void endstop_interrupt(pin_t pin) {
 	switch(pin_portid[pin]) {
 	case PID_A:
