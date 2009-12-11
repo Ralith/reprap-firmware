@@ -12,7 +12,7 @@
 #include "line.h"
 
 inline void endstop_interrupt(pin_t pin) {
-	switch(pin_portid[pin]) {
+	switch(pin_pid[pin]) {
 	case PID_A:
 		BSET(PCICR, PCIE0, 1);
 		BSET(PCMSK0, pin_offset[pin], 1);
@@ -168,7 +168,7 @@ ISR(TIMER1_COMPA_vect)
 
 		/* Dwell */
 		if(instructions[inst_read].changes & CHANGE_DWELL_SECS) {
-			/* 100*ms = 10*us = 1 tick*/
+			/* 100*ms = 10*us = 1 tick */
 			dwell_ticks = instructions[inst_read].dwell_ms * 100;
 		}
 

@@ -7,36 +7,40 @@
 
 bool dig_mode(pin_t pin, digmode_t mode) 
 {
-	if(pin_ddr[pin] == 0) {
+	const portid_t pid = pin_pid[pin];
+	if(pid == PID_INVALID) {
 		return FALSE;
 	}
-	BSET(*pin_ddr[pin], pin_offset[pin], (mode == OUTPUT) ? 1 : 0);
+	BSET(*pid_ddr[pid], pin_offset[pin], (mode == OUTPUT) ? 1 : 0);
 	return TRUE;
 }
 
 bool dig_write(pin_t pin, digstate_t state) 
 {
-	if(pin_port[pin] == 0) {
+	const portid_t pid = pin_pid[pin];
+	if(pid == PID_INVALID) {
 		return FALSE;
 	}
-	BSET(*pin_port[pin], pin_offset[pin], (state == HIGH) ? 1 : 0);
+	BSET(*pid_port[pid], pin_offset[pin], (state == HIGH) ? 1 : 0);
 	return TRUE;
 }
 
 bool dig_toggle(pin_t pin) 
 {
-	if(pin_port[pin] == 0) {
+	const portid_t pid = pin_pid[pin];
+	if(pid == PID_INVALID) {
 		return FALSE;
 	}
-	*pin_port[pin] ^= BV(pin_offset[pin]);
+	*pid_port[pid] ^= BV(pin_offset[pin]);
 	return TRUE;
 }
 
 digstate_t dig_read(pin_t pin) 
 {
-	if(pin_in[pin] == 0) {
+	const portid_t pid = pin_pid[pin];
+	if(pid == PID_INVALID) {
 		/* TODO: Indicate error */
 		return LOW;
 	}
-	return (*pin_in[pin]) & BV(pin_offset[pin]);
+	return (*pid_in[pid]) & BV(pin_offset[pin]);
 }

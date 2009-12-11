@@ -3,7 +3,7 @@
 #include <avr/io.h>
 
 #ifdef __AVR_ATmega644P__
-const portid_t pin_portid[] =
+const portid_t pin_pid[] =
 {PID_B, PID_B, PID_B, PID_B, PID_B, PID_B, PID_B, PID_B,  /* 1-8 */
  0, 0, 0, 0, 0,											  /* 9-13 */
  PID_D, PID_D, PID_D, PID_D, PID_D, PID_D, PID_D, PID_D,  /* 14-21 */
@@ -11,29 +11,9 @@ const portid_t pin_portid[] =
  0, 0, 0,												  /* 30-32 */
  PID_A, PID_A, PID_A, PID_A, PID_A, PID_A, PID_A, PID_A}; /* 33-40 */
 
-volatile uint8_t * const pin_ddr[] =
-{&DDRB, &DDRB, &DDRB, &DDRB, &DDRB, &DDRB, &DDRB, &DDRB,  /* 1-8 */
- 0, 0, 0, 0, 0,											  /* 9-13 */
- &DDRD, &DDRD, &DDRD, &DDRD, &DDRD, &DDRD, &DDRD, &DDRD,  /* 14-21 */
- &DDRC, &DDRC, &DDRC, &DDRC, &DDRC, &DDRC, &DDRC, &DDRC,  /* 22-29 */
- 0, 0, 0,												  /* 30-32 */
- &DDRA, &DDRA, &DDRA, &DDRA, &DDRA, &DDRA, &DDRA, &DDRA}; /* 33-40 */
-
-volatile uint8_t * const pin_port[] =
-{&PORTB, &PORTB, &PORTB, &PORTB, &PORTB, &PORTB, &PORTB, &PORTB, /* 1-8 */
- 0, 0, 0, 0, 0,					/* 9-13 */
- &PORTD, &PORTD, &PORTD, &PORTD, &PORTD, &PORTD, &PORTD, &PORTD, /* 14-21 */
- &PORTC, &PORTC, &PORTC, &PORTC, &PORTC, &PORTC, &PORTC, &PORTC, /* 22-29 */
- 0, 0, 0,						/* 30-32 */
- &PORTA, &PORTA, &PORTA, &PORTA, &PORTA, &PORTA, &PORTA, &PORTA}; /* 33-40 */
-
-volatile uint8_t * const pin_in[] =
-{&PINB, &PINB, &PINB, &PINB, &PINB, &PINB, &PINB, &PINB, /* 1-8 */
- 0, 0, 0, 0, 0,					/* 9-13 */
- &PIND, &PIND, &PIND, &PIND, &PIND, &PIND, &PIND, &PIND, /* 14-21 */
- &PINC, &PINC, &PINC, &PINC, &PINC, &PINC, &PINC, &PINC, /* 22-29 */
- 0, 0, 0,						/* 30-32 */
- &PINA, &PINA, &PINA, &PINA, &PINA, &PINA, &PINA, &PINA}; /* 33-40 */
+volatile uint8_t * const pid_ddr[] = {0, &DDRA, &DDRB, &DDRC, &DDRD};
+volatile uint8_t * const pid_port[] = {0, &PORTA, &PORTB, &PORTC, &PORTD};
+volatile uint8_t * const pid_in[] = {0, &PINA, &PINB, &PINC, &PIND};
 
 const int8_t pin_offset[] =
 {0, 1, 2, 3, 4, 5, 6, 7,		/* 1-8 */
