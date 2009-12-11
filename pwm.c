@@ -7,9 +7,9 @@ bool pwm_init(pin_t pin) {
 	/* TODO: Other timer support, portability */
 	uint8_t pin_mask;
 	if(pin == 4) {
-		mask = BV(COM0A1);
+		pin_mask = BV(COM0A1);
 	} else if(pin == 5) {
-		mask = BV(COM0B1);
+		pin_mask = BV(COM0B1);
 	}
 	
 	/* TODO: Other pins */
