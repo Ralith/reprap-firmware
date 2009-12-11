@@ -78,13 +78,13 @@ void stepdrive_init(void)
 	/* TODO: Set default extrusion rate/temperature (sane/zero) */
 }
 
-int8_t do_line() {
+bool do_line() {
 	static int32_t to[AXES];
 	static int32_t current[AXES];
 	static int32_t next[AXES];
 	static int32_t from[AXES];
 	static struct line_data this_line;
-	static int8_t in_line = FALSE;
+	static bool in_line = FALSE;
 	static int32_t *vars[AXES];
 
 	uint8_t i;
@@ -133,10 +133,10 @@ int8_t do_line() {
 /* TODO: Use this interrupt exclusively for motion control */
 ISR(TIMER1_COMPA_vect) 
 {
-	static bool need_inst = TRUE;
+	static bool inst_done = TRUE;
 	static float feedrate = DEFAULT_FEEDRATE;
 	
-	if(need_inst) {	
+	if(inst_done) {	
 		/* Read instruction */
 		if(inst_read == inst_write)
 		{
@@ -182,30 +182,31 @@ ISR(TIMER1_COMPA_vect)
 		}
 
 		/* Done reading instruction */
-		need_inst = FALSE;
+		inst_done = FALSE;
 	}
 
-	switch(instructions[inst_read].interp) {
-	case INTERP_RAPID: /* Rapid can be reasonably implemented as setting the feed to whatever will max out the stepper */
-	case INTERP_LINEAR:
-		if(instructions[inst_read].changes & CHANGE_POSITION) {
+	if(instructions[inst_read].changes & CHANGE_POSITION) {
+		switch(instructions[inst_read].interp) {
+		case INTERP_RAPID: /* Rapid can be reasonably implemented as setting the feed to whatever will max out the stepper */
+		case INTERP_LINEAR:
+		
 			/* TODO: Verify that it's appropriate to always move to the
 			 * next instruction after a line finishes. */
-			need_inst = do_line();
-		}
-		break;
+			inst_done = do_line();
+			break;
 
-	case INTERP_ARC_CW:
-		/* TODO */
-		break;
+		case INTERP_ARC_CW:
+			/* TODO */
+			break;
 		
-	case INTERP_ARC_CCW:
-		/* TODO */
-		break;
+		case INTERP_ARC_CCW:
+			/* TODO */
+			break;
+		}
 	}
 
 	/* Circularly increment read index when done with instruction */
-	if(need_inst) {
+	if(inst_done) {
 		inst_read = (inst_read + 1) & INST_BUFFER_MASK;
 	}
 }
