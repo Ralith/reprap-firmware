@@ -70,12 +70,12 @@ void stepdrive_init(void)
 	}
 
 	/* Configure control timer */
-	TCCR1B |= _BV(CS01) | /* Clock timer at F_CPU/8 */
-		_BV(WGM12);					/* Clear on Timer Compare mode */
-	TIMSK1 |= _BV(OCIE1A) | _BV(TOIE1);			/* Enable CTC interrupt */
-	OCR1A = 20;				/* Timer executes every 10us */
+	TCCR1B |= _BV(CS01) |		/* Clock timer at F_CPU/8 */
+		_BV(WGM12);				/* Clear on Timer Compare mode */
+	TIMSK1 |= _BV(OCIE1A) | _BV(TOIE1);	/* Enable CTC interrupt */
+	OCR1A = 20;					/* Timer executes every 10us */
 
-	/* TODO: Set default extrusion rate/temperature (sane/zero) */
+	/* TODO: Set default extrusion temperature (sane/zero) */
 }
 
 bool do_line() {
