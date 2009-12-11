@@ -157,18 +157,13 @@ ISR(TIMER1_COMPA_vect)
 
 		/* Extrusion rate */
 		if(instructions[inst_read].changes & CHANGE_EXTRUDE_RATE) {
-			/* TODO: Set extruder motor PWM */
+			/* TODO: Set extruder motor direction pin correctly */
+			/* TODO: set/enable/disable extruder motor PWM */
 		}
 
 		/* Extrusion temperature */
 		if(instructions[inst_read].changes & CHANGE_EXTRUDE_TEMP) {
-			/* TODO: Set extrusion temp PID target */
-		}
-
-		/* Extruder motor state */
-		if(instructions[inst_read].changes & CHANGE_EXTRUDE_STATE) {
-			/* TODO: Set extruder motor direction pin correctly */
-			/* TODO: Enable/disable extruder motor PWM */
+			/* TODO: Set extrusion temp PAID target */
 		}
 
 		/* Dwell */

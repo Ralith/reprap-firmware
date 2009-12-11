@@ -23,6 +23,7 @@ volatile uint8_t inst_read;
 volatile uint8_t inst_write;
 
 static int32_t last_position[AXES];
+static float last_extrude_rate = DEFAULT_EXTRUDE_RATE;
 
 void gcode_init() 
 {
@@ -92,11 +93,19 @@ int8_t gcode_parsew(const char letter, const float value)
 	case 'M':
 		m_last = TO_APPROX_UBYTE(value);
 		switch(m_last) {
-		case EX_ON:
-		case EX_REVERSE:
-		case EX_OFF:
-			instructions[inst_write].extrude_state = m_last;
-			instructions[inst_write].changes |= CHANGE_EXTRUDE_STATE;
+		case 101:
+			instructions[inst_write].extrude_rate = last_extrude_rate;
+			instructions[inst_write].changes |= CHANGE_EXTRUDE_RATE;
+			break;
+			
+		case 102:
+			instructions[inst_write].extrude_rate = -last_extrude_rate;
+			instructions[inst_write].changes |= CHANGE_EXTRUDE_RATE;
+			break;
+
+		case 103:
+			instructions[inst_write].extrude_rate = 0;
+			instructions[inst_write].changes |= CHANGE_EXTRUDE_RATE;
 			break;
 				
 		case 104:
@@ -141,6 +150,7 @@ int8_t gcode_parsew(const char letter, const float value)
 		case 108:
 			instructions[inst_write].extrude_rate = value;
 			instructions[inst_write].changes |= CHANGE_EXTRUDE_RATE;
+			last_extrude_rate = value;
 			break;
 
 		default:
