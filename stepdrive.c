@@ -135,6 +135,12 @@ ISR(TIMER1_COMPA_vect)
 {
 	static bool inst_done = TRUE;
 	static float feedrate = DEFAULT_FEEDRATE;
+	static uint32_t dwell_ticks = 0;
+
+	if(--dwell_ticks) {
+		/* We're sleeping */
+		return;
+	}
 	
 	if(inst_done) {	
 		/* Read instruction */
@@ -167,11 +173,8 @@ ISR(TIMER1_COMPA_vect)
 
 		/* Dwell */
 		if(instructions[inst_read].changes & CHANGE_DWELL_SECS) {
-			/* TODO: Sleep without triggering timer overflow
-			 * This also needs to not hold us in the timer interrupt -
-			 * perhaps change the rate of the timer interrupt to 
-			 * something constant and then just count ticks before 
-			 * declaring the block done. */
+			/* 100*ms = 10*us = 1 tick*/
+			dwell_ticks = instructions[inst_read].dwell_ms * 100;
 		}
 
 		/* Get current extruder temperature */

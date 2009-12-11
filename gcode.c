@@ -13,6 +13,7 @@
 #error This code requires an implementation with floating point NAN support
 #endif
 
+/* TODO: Minimize use of FP math */
 #define TO_APPROX_UBYTE(x) ((uint8_t)(x + 0.1))
 #define MAYBE_IN(position) (inches ? 25.4 * position : position)
 
@@ -145,7 +146,7 @@ int8_t gcode_parsew(const char letter, const float value)
 		default:
 			switch(g_last) {
 			case 4:
-				instructions[inst_write].dwell_secs = value;
+				instructions[inst_write].dwell_ms = value * 1000.0;
 				instructions[inst_write].changes |= CHANGE_DWELL_SECS;
 
 			default:

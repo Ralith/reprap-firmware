@@ -49,7 +49,7 @@ typedef struct
 	float extrude_rate;
 	float extrude_temp;
 	uint8_t extrude_state;
-	float dwell_secs;
+	uint32_t dwell_ms;
 } inst_t;
 
 /* Return values of gcode parser funcs. <0 indicates an error*/
