@@ -92,12 +92,9 @@ ISR(TIMER1_COMPA_vect)
 		return;
 	}
 
-	/* Circularly increment read index when done with instruction */
 	if(inst_done) {
+		/* Circularly increment read index when done with instruction */
 		inst_read = (inst_read + 1) & INST_BUFFER_MASK;
-	}
-	
-	if(inst_done) {	
 		/* Read instruction */
 		if(inst_read == inst_write)
 		{
