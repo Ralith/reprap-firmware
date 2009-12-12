@@ -87,7 +87,8 @@ ISR(TIMER1_COMPA_vect)
 	static float feedrate = DEFAULT_FEEDRATE;
 	static uint32_t dwell_ticks = 0;
 
-	if(--dwell_ticks) {
+	if(dwell_ticks > 0) {
+		dwell_ticks--;
 		/* We're sleeping */
 		return;
 	}
