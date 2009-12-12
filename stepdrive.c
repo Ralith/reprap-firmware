@@ -182,15 +182,19 @@ ISR(TIMER1_COMPA_vect)
 			uart_puts_P("\r\n");
 		}
 
-		/* Done reading instruction */
+		if(!(instructions[inst_read].changes & CHANGE_POSITION)) {
+			/* Nothing else to do for this instruction */
+			return;
+		}
+		
+		/* Continue to handle long-period operations */
 		inst_done = FALSE;
 	}
 
 	if(instructions[inst_read].changes & CHANGE_POSITION) {
 		switch(instructions[inst_read].interp) {
 		case INTERP_RAPID: /* Rapid can be reasonably implemented as setting the feed to whatever will max out the stepper */
-		case INTERP_LINEAR:
-		
+		case INTERP_LINEAR:		
 			/* TODO: Verify that it's appropriate to always move to the
 			 * next instruction after a line finishes. */
 			inst_done = do_line();
