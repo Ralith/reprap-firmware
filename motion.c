@@ -51,6 +51,7 @@ bool do_line() {
 				dig_write(DIR_PIN[i], (tick > 0 ? LOW : HIGH));
 			}
 			dig_write(STEP_PIN[i], HIGH);
+			/* TODO: Verify that we don't need to sleep here. */
 			dig_write(STEP_PIN[i], LOW);
 		}
 		/* ALTERNATE: If directly controlling steppers,

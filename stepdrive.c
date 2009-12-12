@@ -41,8 +41,7 @@ inline void endstop_interrupt(pin_t pin) {
 	}
 }	
 
-static int8_t endstops[2*AXES]; /* [xmin|xmax|ymin|ymax|zmin|zmax|...] */
-#define SET_ENDSTOP(axis, index, state) endstops[2*axis+index] = state
+static digstate_t endstops[2*AXES]; /* [xmin|xmax|ymin|ymax|zmin|zmax|...] */
 void stepdrive_init(void)
 {
 	/* Initialize endstop state */
@@ -92,6 +91,11 @@ ISR(TIMER1_COMPA_vect)
 		/* We're sleeping */
 		return;
 	}
+
+	/* Circularly increment read index when done with instruction */
+	if(inst_done) {
+		inst_read = (inst_read + 1) & INST_BUFFER_MASK;
+	}
 	
 	if(inst_done) {	
 		/* Read instruction */
@@ -139,8 +143,16 @@ ISR(TIMER1_COMPA_vect)
 		/* Continue to handle long-period operations */
 		inst_done = FALSE;
 	}
-
+	
 	if(instructions[inst_read].changes & CHANGE_POSITION) {
+		for(int i = 0; i < 2*AXES; i++) {
+			if(endstops[i] == ENDSTOP_CLOSED) {
+				/* We hit an endstop, abort the current operation */
+				inst_done = TRUE;
+				return;
+			}
+		}
+		
 		switch(instructions[inst_read].interp) {
 		case INTERP_RAPID: /* Rapid can be reasonably implemented as setting the feed to whatever will max out the stepper */
 		case INTERP_LINEAR:		
@@ -158,11 +170,6 @@ ISR(TIMER1_COMPA_vect)
 			break;
 		}
 	}
-
-	/* Circularly increment read index when done with instruction */
-	if(inst_done) {
-		inst_read = (inst_read + 1) & INST_BUFFER_MASK;
-	}
 }
 
 /* Timer overflow; we missed a compare. */
@@ -172,6 +179,7 @@ ISR(TIMER1_OVF_vect)
 }
 
 /* Pin change */
+#define SET_ENDSTOP(axis, index, state) endstops[2*axis+index] = state
 ISR(PCINT0_vect) 
 {
 	uint8_t i;
