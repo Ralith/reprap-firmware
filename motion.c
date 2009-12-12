@@ -2,6 +2,7 @@
 
 #include "gcode.h"
 #include "line.h"
+#include "digital.h"
 
 bool do_line() {
 	static int32_t to[AXES];
@@ -42,11 +43,16 @@ bool do_line() {
 		/* This seems awkward, but I'm not sure that it'd be any better
 		 * making line_tick directly return step and dir, given that it
 		 * needs to track the position anyways. */
-		int tick = current[i]-next[i];
-		/* TODO: Send to steppers. 
-		 * dir = tick > 0
-		 * step = tick != 0 */
-		
+		int32_t tick = current[i]-next[i];
+		if(tick != 0) {
+			if(INVERT_AXIS[i]) {
+				dig_write(DIR_PIN[i], (tick > 0 ? HIGH : LOW));
+			} else {
+				dig_write(DIR_PIN[i], (tick > 0 ? LOW : HIGH));
+			}
+			dig_write(STEP_PIN[i], HIGH);
+			dig_write(STEP_PIN[i], LOW);
+		}
 		/* ALTERNATE: If directly controlling steppers,
 		 * calculate the next configuration of coils directly with mod and bitshift. */
 		current[i]=next[i];
