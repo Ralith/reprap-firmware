@@ -7,12 +7,13 @@
 /* Note that STEP_PIN doubles as the "axis stepper used" boolean */
 /* All axis-related arrays are of the form:
                                { X,    Y,    Z} */
-#define STEPS_PER_MM ((float[]){10.0, 10.0, 10.0})
-#define STEP_PIN   ((uint8_t[]){ 6,   10,   14})
-#define DIR_PIN    ((uint8_t[]){ 5,    9,   13})
-#define ENABLE_PIN ((uint8_t[]){ 4,    8,   12})
-#define MIN_PIN    ((uint8_t[]){ 3,    7,   11})
-#define MAX_PIN    ((uint8_t[]){ 0,    0,    0})
+#define STEPS_PER_MM  ((float[]){10.0, 10.0, 10.0})
+#define STEP_PIN    ((uint8_t[]){ 6,   10,   14})
+#define DIR_PIN     ((uint8_t[]){ 5,    9,   13})
+#define ENABLE_PIN  ((uint8_t[]){ 4,    8,   12})
+#define MIN_PIN     ((uint8_t[]){ 3,    7,   11})
+#define MAX_PIN     ((uint8_t[]){ 0,    0,    0})
+#define INVERT_AXIS    ((bool[]){FALSE, FALSE, FALSE})
 
 #define ENDSTOP_CLOSED LOW
 #define ENDSTOP_OPEN HIGH
