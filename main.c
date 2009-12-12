@@ -7,6 +7,7 @@
 #include "uart.h"
 #include "gcode.h"
 #include "stepdrive.h"
+#include "extruder.h"
 #include "config.h"
 
 #define UART_BAUD_RATE 19200
@@ -20,8 +21,9 @@
 
 int main(void)
 {
-	/* Initialize stepper control */
+	/* Initialize hardware control */
 	stepdrive_init();
+	extruder_init();
 	/* Enable UART for serial comms */
 	uart_init(UART_BAUD_SELECT(UART_BAUD_RATE, F_CPU));
 	/* Enable interrupts */

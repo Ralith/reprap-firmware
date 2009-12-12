@@ -1,10 +1,12 @@
 #include "stepdrive.h"
 
+#include <stdlib.h>
 #include <avr/interrupt.h>
 #include <avr/pgmspace.h>
 
 #include "digital.h"
 #include "uart.h"
+#include "extruder.h"
 #include "gcode.h"
 #include "util.h"
 #include "config.h"
@@ -157,13 +159,12 @@ ISR(TIMER1_COMPA_vect)
 
 		/* Extrusion rate */
 		if(instructions[inst_read].changes & CHANGE_EXTRUDE_RATE) {
-			/* TODO: Set extruder motor direction pin correctly */
-			/* TODO: set/enable/disable extruder motor PWM */
+			extruder_set_rate(instructions[inst_read].extrude_rate);
 		}
 
 		/* Extrusion temperature */
 		if(instructions[inst_read].changes & CHANGE_EXTRUDE_TEMP) {
-			/* TODO: Set extrusion temp PAID target */
+			extruder_set_temp(instructions[inst_read].extrude_temp);
 		}
 
 		/* Dwell */
@@ -174,8 +175,10 @@ ISR(TIMER1_COMPA_vect)
 
 		/* Get current extruder temperature */
 		if(instructions[inst_read].changes & CHANGE_GET_TEMP) {
+			/* 6 chars base 10 = 15 bits plus sign */
+			char str[6];
 			uart_puts_P("T:");
-			/* TODO: Read and print temp */
+			uart_puts(itoa(extruder_get_temp(), str, 10));
 			uart_puts_P("\r\n");
 		}
 
