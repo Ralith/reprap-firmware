@@ -1,3 +1,3 @@
 #include "types.h"
 
-bool do_line();
+bool do_line(void);

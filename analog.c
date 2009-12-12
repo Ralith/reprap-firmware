@@ -7,7 +7,7 @@
 
 void (*_adc_callback)(const uint16_t) = 0;
 
-bool adc_init(const pin_t pin, const void(*callback)(const uint16_t)) {
+bool adc_init(const pin_t pin, void (*callback)(const uint16_t)) {
 	/* Verify and select input pin */
 	const int8_t mux = 40 - pin;
 	if(mux < 0) {
