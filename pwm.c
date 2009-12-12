@@ -10,6 +10,8 @@ bool pwm_init(pin_t pin) {
 		pin_mask = BV(COM0A1);
 	} else if(pin == 5) {
 		pin_mask = BV(COM0B1);
+	} else {
+		return FALSE;
 	}
 	
 	/* TODO: Other pins */
@@ -18,6 +20,8 @@ bool pwm_init(pin_t pin) {
 	TCCR0A |= pin_mask | BV(WGM01) | BV(WGM00);
 	/* Run at clock/64 */
 	TCCR0B |= BV(CS01) | BV(CS00);
+
+	return TRUE;
 }
 
 void pwm_set(pin_t pin, uint8_t duty_cycle) {
