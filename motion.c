@@ -1,5 +1,6 @@
 #include "motion.h"
 
+#include "config.h"
 #include "gcode.h"
 #include "line.h"
 #include "digital.h"
