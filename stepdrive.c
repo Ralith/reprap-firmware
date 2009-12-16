@@ -83,8 +83,8 @@ ISR(TIMER1_COMPA_vect)
 
 		/* Get current extruder temperature */
 		if(instructions[inst_read].changes & CHANGE_GET_TEMP) {
-			/* 6 chars base 10 = 15 bits plus sign */
-			char str[6];
+			/* 5 places base 10 = 16 places base 2 */
+			char str[5];
 			uart_puts_P("T:");
 			uart_puts(itoa(extruder_get_temp(), str, 10));
 			uart_puts_P("\r\n");
