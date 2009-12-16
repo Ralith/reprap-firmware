@@ -26,8 +26,8 @@ int main(void)
 	uart_init(UART_BAUD_SELECT(UART_BAUD_RATE, F_CPU));
 	/* Initialize hardware control */
 	endstop_init();
-	stepdrive_init();
 	extruder_init();
+	stepdrive_init();
 	/* Enable interrupts */
 	sei();
 

@@ -7,7 +7,7 @@
 #include "config.h"
 #include "digital.h"
 
-digstate_t endstops[2*AXES]; /* [xmin|xmax|ymin|ymax|zmin|zmax|...] */
+volatile digstate_t endstops[2*AXES]; /* [xmin|xmax|ymin|ymax|zmin|zmax|...] */
 
 void endstop_enable_interrupt(pin_t pin) {
 	switch(pin_pid[pin]) {
@@ -37,7 +37,7 @@ void endstop_enable_interrupt(pin_t pin) {
 	}
 }
 
-void endstop_init() {
+void endstop_init(void) {
 	uint8_t i;
 
 	/* Initialize state array */

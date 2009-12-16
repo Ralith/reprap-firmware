@@ -1,5 +1,7 @@
 #include "types.h"
 
-extern digstate_t endstops[2*AXES]; /* [xmin|xmax|ymin|ymax|zmin|zmax|...] */
+#define ENDSTOP_COUNT (2*AXES)
 
-void endstop_init();
+extern volatile digstate_t endstops[ENDSTOP_COUNT]; /* [xmin|xmax|ymin|ymax|zmin|zmax|...] */
+
+void endstop_init(void);

@@ -10,7 +10,6 @@
 #include "gcode.h"
 #include "util.h"
 #include "config.h"
-#include "platform.h"
 #include "motion.h"
 #include "endstop.h"
 
@@ -29,9 +28,9 @@ void stepdrive_init(void)
 	}
 
 	/* Configure control timer */
-	TCCR1B |= _BV(CS01) |		/* Clock timer at F_CPU/8 */
+	TCCR1B |= BV(CS01) |		/* Clock timer at F_CPU/8 */
 		_BV(WGM12);				/* Clear on Timer Compare mode */
-	TIMSK1 |= _BV(OCIE1A) | _BV(TOIE1);	/* Enable CTC interrupt */
+	TIMSK1 |= BV(OCIE1A) | BV(TOIE1);	/* Enable CTC interrupt */
 	OCR1A = 20;					/* Timer executes every 10us */
 
 	/* TODO: Set default extrusion temperature (sane/zero) */

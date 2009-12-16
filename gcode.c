@@ -25,7 +25,7 @@ volatile uint8_t inst_write;
 static int32_t last_position[AXES];
 static float last_extrude_rate = DEFAULT_EXTRUDE_RATE;
 
-void gcode_init() 
+void gcode_init(void) 
 {
 	inst_write = 0;
 	inst_read = 0;
