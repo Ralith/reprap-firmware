@@ -163,10 +163,8 @@ int8_t gcode_parsew(const char letter, const float value)
 				goto unsupported;
 			}
 		}
-	break;
-			
+	break;			
 
-	/* TODO: Consider converting these to multiples of resolution */
 	case 'X':
 	case 'Y':
 	case 'Z':
