@@ -63,8 +63,7 @@ int main(void)
 		default:
 		{
 			/* Got data */
-			static int8_t result;
-			result = gcode_parsec((char)recv);
+			int8_t result = gcode_parsec((char)recv);
 			switch(result) {
 			case GCODE_BLOCK_COMPLETE:
 				/* Indicate that we're ready for the next block. */
