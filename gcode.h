@@ -61,6 +61,8 @@ extern volatile inst_t instructions[INST_BUFFER_LEN];
 extern volatile uint8_t inst_read;
 extern volatile uint8_t inst_write;
 
+void gcode_init(void);
+
 /* Parses and prepares for execution of the provided null-terminated block. */
 int8_t gcode_parsew(const char letter, const float value);
 int8_t gcode_parsec(const char c);

@@ -22,6 +22,8 @@
 
 int main(void)
 {
+	/* Initialize G-code parser */
+	gcode_init();
 	/* Enable UART for serial comms */
 	uart_init(UART_BAUD_SELECT(UART_BAUD_RATE, F_CPU));
 	/* Initialize hardware control */
