@@ -7,6 +7,7 @@
 #include "uart.h"
 #include "gcode.h"
 #include "stepdrive.h"
+#include "endstop.h"
 #include "extruder.h"
 #include "config.h"
 
@@ -21,11 +22,12 @@
 
 int main(void)
 {
-	/* Initialize hardware control */
-	stepdrive_init();
-	extruder_init();
 	/* Enable UART for serial comms */
 	uart_init(UART_BAUD_SELECT(UART_BAUD_RATE, F_CPU));
+	/* Initialize hardware control */
+	endstop_init();
+	stepdrive_init();
+	extruder_init();
 	/* Enable interrupts */
 	sei();
 

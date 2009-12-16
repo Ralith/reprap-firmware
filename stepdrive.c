@@ -12,61 +12,19 @@
 #include "config.h"
 #include "platform.h"
 #include "motion.h"
+#include "endstop.h"
 
-inline void endstop_interrupt(pin_t pin) {
-	switch(pin_pid[pin]) {
-	case PID_A:
-		BSET(PCICR, PCIE0, 1);
-		BSET(PCMSK0, pin_offset[pin], 1);
-		break;
-		
-	case PID_B:
-		BSET(PCICR, PCIE1, 1);
-		BSET(PCMSK1, pin_offset[pin], 1);
-		break;
-		
-	case PID_C:
-		BSET(PCICR, PCIE2, 1);
-		BSET(PCMSK2, pin_offset[pin], 1);
-		break;
-		
-	case PID_D:
-		BSET(PCICR, PCIE3, 1);
-		BSET(PCMSK3, pin_offset[pin], 1);
-		break;
-
-	default:
-		/* TODO: Indicate error */
-		break;
-	}
-}	
-
-static digstate_t endstops[2*AXES]; /* [xmin|xmax|ymin|ymax|zmin|zmax|...] */
 void stepdrive_init(void)
 {
-	/* Initialize endstop state */
 	uint8_t i;
-	for(i = 0; i < 2*AXES; i++) {
-		endstops[i] = ENDSTOP_UNDEFINED;
-	}
-	
 	for(i = 0; i < AXES; i++) {
 		if(STEP_PIN[i]) {
 			/* Configure and initialize stepper state */
 			dig_mode(STEP_PIN[i], OUTPUT);
 			dig_mode(DIR_PIN[i], OUTPUT);
 			dig_mode(ENABLE_PIN[i], OUTPUT);
-
+			
 			dig_write(ENABLE_PIN[i], STEPPER_ENABLE_OFF);
-		}
-		/* Configure and prepare interrupts on endstops. */
-		if(MIN_PIN[i]) {
-			dig_mode(MIN_PIN[i], INPUT);
-			endstop_interrupt(MIN_PIN[i]);
-		}
-		if(MAX_PIN[i]) {
-			dig_mode(MAX_PIN[i], INPUT);
-			endstop_interrupt(MAX_PIN[i]);
 		}
 	}
 
@@ -175,23 +133,3 @@ ISR(TIMER1_OVF_vect)
 {
 	uart_puts_P("WARNING: POSSIBLE MISSED STEP");
 }
-
-/* Pin change */
-#define SET_ENDSTOP(axis, index, state) endstops[2*axis+index] = state
-ISR(PCINT0_vect) 
-{
-	uint8_t i;
-	for(i = 0; i < AXES; i++) {
-		if(MIN_PIN[i]) {
-			SET_ENDSTOP(i, 0, dig_read(MIN_PIN[i]));
-		}
-		if(MAX_PIN[i]) {
-			SET_ENDSTOP(i, 1, dig_read(MAX_PIN[i]));
-		}
-	}
-}
-
-/* Bind all pin change interrupts to the above function */
-ISR(PCINT1_vect, ISR_ALIASOF(PCINT0_vect));
-ISR(PCINT2_vect, ISR_ALIASOF(PCINT0_vect));
-ISR(PCINT3_vect, ISR_ALIASOF(PCINT0_vect));
