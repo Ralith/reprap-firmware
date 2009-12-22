@@ -6,6 +6,7 @@
 #include "digital.h"
 
 bool do_line() {
+	/* TODO: Move this state to caller to avoid glitching on endstop hit. */
 	static int32_t to[AXES];
 	static int32_t current[AXES];
 	static int32_t next[AXES];
