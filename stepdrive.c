@@ -1,6 +1,7 @@
 #include "stepdrive.h"
 
 #include <stdlib.h>
+#include <string.h>
 #include <avr/interrupt.h>
 #include <avr/pgmspace.h>
 
@@ -43,6 +44,7 @@ ISR(TIMER1_COMPA_vect)
 	static bool inst_done = TRUE;
 	static float feedrate = DEFAULT_FEEDRATE;
 	static uint32_t dwell_ticks = 0;
+	static linestate_t line_state;
 
 	if(dwell_ticks > 0) {
 		dwell_ticks--;
@@ -51,6 +53,9 @@ ISR(TIMER1_COMPA_vect)
 	}
 
 	if(inst_done) {
+		/* Reset line state */
+		memset(&line_state, 0, sizeof(linestate_t));
+		
 		/* Circularly increment read index when done with instruction */
 		inst_read = (inst_read + 1) & INST_BUFFER_MASK;
 		/* Read instruction */
@@ -113,7 +118,7 @@ ISR(TIMER1_COMPA_vect)
 		case INTERP_LINEAR:		
 			/* TODO: Verify that it's appropriate to always move to the
 			 * next instruction after a line finishes. */
-			inst_done = do_line();
+			inst_done = do_line(&line_state);
 			break;
 
 		case INTERP_ARC_CW:
