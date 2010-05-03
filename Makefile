@@ -58,7 +58,7 @@ TARGET = main
 
 # List C source files here. (C dependencies are automatically generated.)
 # platform.c first to ensure error if unsupported.
-SRC = platform.c $(TARGET).c uart.c digital.c analog.c pwm.c endstop.c motion.c extruder.c gcode.c stepdrive.c line.c
+SRC = platform.c $(TARGET).c uart.c analog.c pwm.c endstop.c motion.c extruder.c gcode.c stepdrive.c line.c
 
 
 # List Assembler source files here.
