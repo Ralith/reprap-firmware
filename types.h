@@ -6,6 +6,11 @@
 #include <stdint.h>
 
 typedef enum {
+    FALSE = 0,
+    TRUE = 1
+} bool;
+
+typedef enum {
 	INPUT = 0,
 	OUTPUT = 1
 } digmode_t;
@@ -33,9 +38,5 @@ typedef enum {
 /* Pins are identified by physical numbering (e.g. 1-40 on an
  * ATMega644p (Sanguino)) */
 typedef uint8_t pin_t;
-
-#define TRUE 1
-#define FALSE 0
-typedef uint8_t bool;
 
 #endif
